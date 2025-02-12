@@ -4,6 +4,7 @@ import os
 class Config(BaseSettings):
     qdrant_url: str = "http://localhost:6333"
     qdrant_api_key: str = os.getenv("QDRANT_API_KEY")
+    model_provider: str = "groq" # pip install langchain-[model_provider] first
     groq_api_key: str = os.getenv("GROQ_API_KEY")
     llm_model: str = "llama3-70b-8192"
     embeddings_model: str = "llama3"

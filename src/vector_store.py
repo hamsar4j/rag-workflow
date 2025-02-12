@@ -1,7 +1,6 @@
 from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
 from langchain_ollama import OllamaEmbeddings
-from config import config
 
 class VectorStore:
     def __init__(self, config):
