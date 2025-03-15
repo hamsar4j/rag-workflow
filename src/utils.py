@@ -1,5 +1,6 @@
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
+
 # split the documents into chunks
 def split_docs(docs):
     text_splitter = RecursiveCharacterTextSplitter(

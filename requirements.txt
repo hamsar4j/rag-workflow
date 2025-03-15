@@ -6,4 +6,4 @@ langchain
 langchain-ollama
 langchain-qdrant
 qdrant-client
-beautifulsoup4
+selenium

@@ -4,10 +4,16 @@ from vector_store import VectorStore
 from config import config
 from langchain.chat_models import init_chat_model
 from langchain_core.prompts import ChatPromptTemplate
+from langgraph.checkpoint.memory import MemorySaver
+
 
 def build_rag_workflow():
     # load llm
-    llm = init_chat_model(model=config.llm_model, api_key=config.groq_api_key, model_provider=config.model_provider)
+    llm = init_chat_model(
+        model=config.llm_model,
+        api_key=config.groq_api_key,
+        model_provider=config.model_provider,
+    )
     # load vector store
     vector_store = VectorStore(config)
     vector_store = vector_store.get_vector_store()
@@ -33,7 +39,9 @@ def build_rag_workflow():
 
     def generate(state: State) -> State:
         docs_content = "\n\n".join([doc.page_content for doc in state["context"]])
-        messages = prompt.invoke({"question": state["question"], "context": docs_content})
+        messages = prompt.invoke(
+            {"question": state["question"], "context": docs_content}
+        )
         response = llm.invoke(messages)
         return {"answer": response.content}
 
