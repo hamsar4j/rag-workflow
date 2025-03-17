@@ -14,7 +14,6 @@ class RAGWorkflow:
         self.llm = init_chat_model(
             model=config.llm_model,
             api_key=config.groq_api_key,
-            model_provider=config.model_provider,
         )
         self.prompt = ChatPromptTemplate.from_template(
             """

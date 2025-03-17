@@ -7,20 +7,11 @@ import ollama
 class VectorStore:
     def __init__(self, config):
         self.embeddings_model = config.embeddings_model
-        self.client = QdrantClient(config.qdrant_url)
+        self.client = QdrantClient(url=config.qdrant_url, api_key=config.qdrant_api_key)
         self.collection_name = config.qdrant_collection_name
-
-        # self.client.recreate_collection(
-        #     collection_name=self.collection_name,
-        #     vectors_config=models.VectorParams(
-        #         size=config.embeddings_dim, distance=models.Distance.COSINE
-        #     ),
-        # )
 
     def get_embeddings(self, doc):
         response = ollama.embed(model=self.embeddings_model, input=doc)
-        print(f"Input text: {doc[:50]}...")  # Debug input
-        print(f"Embedding length: {len(response['embeddings'][0])}")  # Debug output
         return response["embeddings"][0]
 
     def add_documents(self, docs: List[Document]):
@@ -43,7 +34,6 @@ class VectorStore:
 
     def semantic_search(self, query: str, top_k: int = 5) -> List[Search]:
         query_vector = self.get_embeddings(query)
-        print(f"Query vector: {query_vector[:1]}...")
 
         results = self.client.search(
             collection_name=self.collection_name, query_vector=query_vector, limit=top_k

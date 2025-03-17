@@ -1,9 +1,10 @@
-langchain-text-splitters
-langchain-community 
-langgraph
-langchain[groq]
 langchain
+langchain-community 
+langchain-together
+langchain-groq
+langgraph
 ollama
 qdrant-client
 beautifulsoup4
 unstructured
+python-dotenv
