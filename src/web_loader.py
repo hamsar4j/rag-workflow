@@ -1,4 +1,5 @@
-from langchain_community.document_loaders import SeleniumURLLoader
+import requests
+from bs4 import BeautifulSoup
 
 urls = [
     "https://www.sutd.edu.sg/",
@@ -14,9 +15,29 @@ urls = [
 
 
 def load_web_docs(urls):
-    loader = SeleniumURLLoader(
-        urls=(urls),
-        headless=True,
-    )
-    docs = loader.load()
+    docs = []
+    for url in urls:
+        docs.append(scrape_url(url))
     return docs
+
+
+def scrape_url(url):
+
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+
+        soup = BeautifulSoup(response.text, "html.parser")
+
+        # content = soup.find("font")
+        content = soup
+
+        if content:
+            text = content.get_text()
+            text = " ".join(text.split())
+            return text
+        else:
+            return "Could not find the main content."
+
+    except requests.RequestException as e:
+        return f"Error fetching the webpage: {e}"

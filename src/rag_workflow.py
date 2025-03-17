@@ -10,7 +10,7 @@ from langgraph.checkpoint.memory import MemorySaver
 class RAGWorkflow:
     def __init__(self):
         self.config = config
-        self.vector_store = VectorStore(config).get_vector_store()
+        self.vector_store = VectorStore(config)
         self.llm = init_chat_model(
             model=config.llm_model,
             api_key=config.groq_api_key,
@@ -28,15 +28,16 @@ class RAGWorkflow:
     def analyze_query(self, state: State):
         structured_llm = self.llm.with_structured_output(Search)
         query = structured_llm.invoke(state["question"])
+        print(f"Analyzed query: {query}")
         return {"query": query}
 
     def retrieve(self, state: State) -> State:
-        query = state["query"]
-        retrieved_docs = self.vector_store.similarity_search(query["query"])
+        query = state["query"]["text"]
+        retrieved_docs = self.vector_store.semantic_search(query, top_k=5)
         return {"context": retrieved_docs}
 
     def generate(self, state: State) -> State:
-        docs_content = "\n\n".join([doc.page_content for doc in state["context"]])
+        docs_content = "\n\n".join([doc.text for doc in state["context"]])
         messages = self.prompt.invoke(
             {"question": state["question"], "context": docs_content}
         )

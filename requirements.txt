@@ -1,9 +1,9 @@
-langchain-text-splitters 
+langchain-text-splitters
 langchain-community 
 langgraph
 langchain[groq]
 langchain
-langchain-ollama
-langchain-qdrant
+ollama
 qdrant-client
-selenium
+beautifulsoup4
+unstructured

@@ -8,7 +8,8 @@ class Config(BaseSettings):
     model_provider: str = "groq"  # pip install langchain-[model_provider] first
     groq_api_key: str = os.getenv("GROQ_API_KEY")
     llm_model: str = "llama3-70b-8192"
-    embeddings_model: str = "llama3"
+    embeddings_model: str = "nomic-embed-text"
+    embeddings_dim: int = 768
     qdrant_collection_name: str = "test"
 
 

@@ -1,13 +1,16 @@
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from models import Document
 
 
 # split the documents into chunks
-def split_docs(docs):
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=200,
-        add_start_index=True,
-    )
-    chunks = text_splitter.split_documents(docs)
-    print(f"Split blog post into {len(chunks)} sub-documents.")
-    return chunks
+def split_docs(docs, chunk_size=1000, overlap=200):
+    all_chunks = []
+
+    for i, doc in enumerate(docs):
+        text = str(doc)
+        metadata = {"source": f"doc_{i}"}
+        for j in range(0, len(text), chunk_size - overlap):
+            chunk = text[j : j + chunk_size]
+            all_chunks.append(Document(text=chunk, metadata=metadata))
+
+    print(f"Split documents into {len(all_chunks)} chunks.")
+    return all_chunks
