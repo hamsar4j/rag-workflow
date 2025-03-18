@@ -2,9 +2,13 @@
 
 ## Overview
 
-This project is a simple RAG workflow using LangChain, Ollama Embeddings and Qdrant Vector Database.
+This project is a simple RAG workflow using LangGraph, Ollama Embeddings and Qdrant Vector Database.
+
+![](https://github.com/hamsar4j/rag-workflow/blob/main/assets/rag_retrieval.png)
 
 ## Setup
+
+### optional (if you want to use your own local Qdrant server)
 
 1. Start the Qdrant server
 
@@ -17,6 +21,8 @@ docker compose up -d
 ```console
 pip install -r requirements.txt
 ```
+
+### run the main RAG app
 
 3. Run the workflow
 
