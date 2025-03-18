@@ -8,7 +8,7 @@ This project is a simple RAG workflow using LangGraph, Ollama Embeddings and Qdr
 
 ## Setup
 
-### optional (if you want to use your own local Qdrant server)
+#### optional (if you want to use your own local Qdrant server)
 
 1. Start the Qdrant server
 
@@ -16,13 +16,13 @@ This project is a simple RAG workflow using LangGraph, Ollama Embeddings and Qdr
 docker compose up -d
 ```
 
+#### run the main RAG app
+
 2. Install the dependencies
 
 ```console
 pip install -r requirements.txt
 ```
-
-### run the main RAG app
 
 3. Run the workflow
 
