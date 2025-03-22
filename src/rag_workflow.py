@@ -1,10 +1,9 @@
-from langgraph.graph import START, StateGraph
 from models import State, Search
 from vector_store import VectorStore
 from config import config
-from langchain.chat_models import init_chat_model
-from langchain_core.prompts import ChatPromptTemplate
+from langgraph.graph import START, StateGraph
 from langgraph.checkpoint.memory import MemorySaver
+from langchain.chat_models import init_chat_model
 
 
 class RAGWorkflow:
@@ -15,14 +14,14 @@ class RAGWorkflow:
             model=config.llm_model,
             api_key=config.groq_api_key,
         )
-        self.prompt = ChatPromptTemplate.from_template(
-            """
+
+    def format_prompt(self, question: str, context: str) -> str:
+        return f"""
             You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.
             Question: {question}
             Context: {context}
             Answer:
             """
-        )
 
     def analyze_query(self, state: State):
         structured_llm = self.llm.with_structured_output(Search)
@@ -36,10 +35,12 @@ class RAGWorkflow:
         return {"context": retrieved_docs}
 
     def generate(self, state: State) -> State:
+        if not state["context"]:
+            return {
+                "answer": "Sorry, I couldn't find any relevant information for your query."
+            }
         docs_content = "\n\n".join([doc.text for doc in state["context"]])
-        messages = self.prompt.invoke(
-            {"question": state["question"], "context": docs_content}
-        )
+        messages = self.format_prompt(question=state["question"], context=docs_content)
         response = self.llm.invoke(messages)
         return {"answer": response.content}
 

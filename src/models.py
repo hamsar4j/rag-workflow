@@ -21,3 +21,4 @@ class State(TypedDict):
     query: Search
     answer: str
     context: List[Document]
+    # history: List[dict]
