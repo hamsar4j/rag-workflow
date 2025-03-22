@@ -1,5 +1,4 @@
 langchain
-langchain-together
 langchain-groq
 langgraph
 ollama

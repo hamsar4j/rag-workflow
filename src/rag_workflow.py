@@ -15,6 +15,12 @@ class RAGWorkflow:
             api_key=config.groq_api_key,
         )
 
+    def format_query(self, question: str) -> str:
+        return f"""
+            Given the user question, reformulate it to be more precise and extract key search terms for a vector search.
+            Question: {question}
+            """
+
     def format_prompt(self, question: str, context: str) -> str:
         return f"""
             You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.
@@ -25,7 +31,8 @@ class RAGWorkflow:
 
     def analyze_query(self, state: State):
         structured_llm = self.llm.with_structured_output(Search)
-        query = structured_llm.invoke(state["question"])
+        prompt = self.format_query(state["question"])
+        query = structured_llm.invoke(prompt)
         print(f"Analyzed query: {query}")
         return {"query": query}
 

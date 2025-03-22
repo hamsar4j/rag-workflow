@@ -13,9 +13,7 @@ class Settings(BaseSettings):
 
     # llm api
     groq_api_key: str = os.getenv("GROQ_API_KEY")
-    llm_model: str = "groq:llama-3.3-70b-versatile"
-    # together_api_key: str = os.getenv("TOGETHER_API_KEY")
-    # llm_model: str = "together:meta-llama/Llama-3.3-70B-Instruct-Turbo-Free"
+    llm_model: str = "groq:llama-3.1-8b-instant"
 
     # ollama embeddings
     embeddings_model: str = "nomic-embed-text"
