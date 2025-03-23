@@ -35,5 +35,5 @@ pip install -r requirements.txt
 3. Run the workflow
 
 ```console
-streamlit run src/main.py
+streamlit run app/main.py
 ```

@@ -1,4 +1,4 @@
-from typing_extensions import TypedDict, List
+from typing_extensions import TypedDict
 from dataclasses import dataclass
 
 
@@ -20,5 +20,5 @@ class State(TypedDict):
     question: str
     query: Search
     answer: str
-    context: List[Document]
-    # history: List[dict]
+    context: list[Document]
+    # history: list[dict]
