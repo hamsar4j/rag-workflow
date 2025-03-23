@@ -2,7 +2,9 @@ from models import Document
 
 
 # split the documents into chunks
-def split_docs(docs, chunk_size=300, overlap=100):
+def split_docs(
+    docs: list[str], chunk_size: int = 300, overlap: int = 100
+) -> list[Document]:
     all_chunks = []
 
     for i, doc in enumerate(docs):

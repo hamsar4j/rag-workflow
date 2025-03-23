@@ -56,14 +56,14 @@ urls = [
 ]
 
 
-def load_web_docs(urls):
+def load_web_docs(urls: list[str]) -> list[str]:
     docs = []
     for url in urls:
         docs.append(scrape_url(url))
     return docs
 
 
-def scrape_url(url):
+def scrape_url(url: str) -> str:
 
     try:
         response = requests.get(url)

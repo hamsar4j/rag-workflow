@@ -24,14 +24,14 @@ def main():
             st.markdown(message["content"])
 
     if prompt := st.chat_input("What would you like to know?"):
-        # Add user message to chat history
+        # add user message to chat history
         st.session_state.messages.append({"role": "user", "content": prompt})
 
-        # Display user message
+        # display user message
         with st.chat_message("user"):
             st.markdown(prompt)
 
-        # Get response
+        # get response
         with st.spinner("Searching for answers..."):
             try:
                 state = {"question": prompt}
@@ -40,11 +40,11 @@ def main():
             except Exception as e:
                 answer = f"Error: {str(e)}"
 
-        # Display assistant response
+        # display assistant response
         with st.chat_message("assistant"):
             st.markdown(answer)
 
-        # Add assistant response to chat history
+        # add assistant response to chat history
         st.session_state.messages.append({"role": "assistant", "content": answer})
 
 

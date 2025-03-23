@@ -29,7 +29,7 @@ class RAGWorkflow:
             Answer:
             """
 
-    def analyze_query(self, state: State):
+    def analyze_query(self, state: State) -> State:
         structured_llm = self.llm.with_structured_output(Search)
         prompt = self.format_query(state["question"])
         query = structured_llm.invoke(prompt)

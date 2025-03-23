@@ -1,6 +1,7 @@
 from models import Document, Search
 from typing import List
 from qdrant_client import QdrantClient, models
+import numpy as np
 import ollama
 
 
@@ -10,11 +11,11 @@ class VectorStore:
         self.client = QdrantClient(url=config.qdrant_url, api_key=config.qdrant_api_key)
         self.collection_name = config.qdrant_collection_name
 
-    def get_embeddings(self, doc):
+    def get_embeddings(self, doc: str) -> np.ndarray:
         response = ollama.embed(model=self.embeddings_model, input=doc)
-        return response["embeddings"][0]
+        return np.array(response["embeddings"][0])
 
-    def add_documents(self, docs: List[Document]):
+    def add_documents(self, docs: List[Document]) -> None:
 
         embeddings = [self.get_embeddings(doc.text) for doc in docs]
 
