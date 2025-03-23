@@ -1,28 +1,51 @@
 from rag_workflow import build_rag_workflow
+import streamlit as st
+
+
+@st.cache_resource
+def get_rag_workflow():
+    return build_rag_workflow()
 
 
 def main():
-    rag_workflow = build_rag_workflow()
+    st.title("🦙 RAG Chatbot")
+    st.markdown("### Ask questions to your knowledge base")
+
+    rag_workflow = get_rag_workflow()
     config = {"configurable": {"thread_id": "abc123"}}
 
-    print("RAG Workflow is ready!")
-    print("Type 'quit' or 'q' or 'exit' to stop the program.")
-    print("-------------------------------------------")
+    # init chat history
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
 
-    while True:
-        user_query = input("Enter your query: ").strip()
-        if user_query.lower() in ["quit", "exit", "q"]:
-            break
-        if not user_query:
-            print("Please enter a valid query.")
-            continue
-        try:
-            state = {"question": user_query}
-            response = rag_workflow.invoke(state, config=config)
-            print(response["answer"])
-        except Exception as e:
-            print(f"An error occurred: {e}")
-        print("-------------------------------------------")
+    # display chat messages
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+    if prompt := st.chat_input("What would you like to know?"):
+        # Add user message to chat history
+        st.session_state.messages.append({"role": "user", "content": prompt})
+
+        # Display user message
+        with st.chat_message("user"):
+            st.markdown(prompt)
+
+        # Get response
+        with st.spinner("Searching for answers..."):
+            try:
+                state = {"question": prompt}
+                response = rag_workflow.invoke(state, config=config)
+                answer = response["answer"]
+            except Exception as e:
+                answer = f"Error: {str(e)}"
+
+        # Display assistant response
+        with st.chat_message("assistant"):
+            st.markdown(answer)
+
+        # Add assistant response to chat history
+        st.session_state.messages.append({"role": "assistant", "content": answer})
 
 
 if __name__ == "__main__":

@@ -7,3 +7,4 @@ beautifulsoup4
 unstructured
 python-dotenv
 pydantic_settings
+streamlit
