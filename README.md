@@ -5,7 +5,7 @@
 This project is a simple RAG workflow using LangGraph, Ollama Embeddings and Qdrant Vector Database.
 Streamlit is used to create a simple chat interface.
 
-![](https://github.com/hamsar4j/rag-workflow/blob/main/assets/rag_retrieval.png)
+![](https://github.com/hamsar4j/rag-workflow/blob/main/assets/rag-workflow.png)
 
 ## Setup
 
@@ -32,7 +32,13 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-3. Run the workflow
+3. Run the embeddings server
+
+```console
+ollama serve
+```
+
+4. Run the workflow
 
 ```console
 streamlit run app/main.py
