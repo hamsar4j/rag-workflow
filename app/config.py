@@ -12,12 +12,13 @@ class Settings(BaseSettings):
     qdrant_collection_name: str = "sutd"
 
     # llm api
-    groq_api_key: str = os.getenv("GROQ_API_KEY")
-    llm_model: str = "groq:llama-3.3-70b-versatile"
+    llm_base_url: str = "https://api.groq.com/openai/v1"
+    llm_api_key: str = os.getenv("GROQ_API_KEY")
+    llm_model: str = "llama-3.3-70b-versatile"
 
     # ollama embeddings
-    embeddings_model: str = "bge-m3"
-    embeddings_dim: int = 1024
+    embeddings_model: str = "nomic-embed-text"
+    embeddings_dim: int = 768
 
 
 config = Settings()

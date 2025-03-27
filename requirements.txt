@@ -1,5 +1,4 @@
-langchain
-langchain-groq
+openai
 langgraph
 ollama
 qdrant-client
