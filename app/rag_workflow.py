@@ -14,28 +14,38 @@ class RAGWorkflow:
 
     def format_query(self, question: str) -> str:
         return f"""
-            Given the user question, reformulate it to be more precise and extract key search terms for a vector search.
-            Question: {question}
-            Return your response as a JSON object that matches this schema:
+            You are a search optimization expert. Improve this question for vector search by:
+            1. Making it more specific and unambiguous
+            2. Extracting core technical terms/keyphrases
+            3. Preserving the original intent
+
+            **Original Question**: {question}
+
+            **Instructions**:
+            - Return ONLY a JSON object with the "text" field containing the optimized query
+            - No additional fields or explanations
+            - Use technical terminology where appropriate
+
             Example Response:
-            {{
-                "text": "reformulated question with key terms",
-                "metadata": {{"type": "query_reformulation"}},
-                "score": 1.0
-            }}
+            {{ "text": "optimized search query with key terms" }}
             """
 
     def format_prompt(self, question: str, context: str) -> str:
         return f"""
-            You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.
-            Return your response as a JSON object.
+            You are a technical assistant. Strictly follow these rules:
+
+            1. Answer ONLY using the provided context
+            2. If information is missing, say: "I don't have sufficient information to answer this"
+            3. Maximum 3 sentences, be technical and precise
+            4. No markdown or formatting
+            5. Return ONLY JSON with "text" field
+
+            **Question**: {question}
+
+            **Context**: {context}
+
             Example Response:
-            {{
-                "text": "your answer",
-            }}
-            Question: {question}
-            Context: {context}
-            Answer:
+            {{ "text": "your concise answer here" }}
             """
 
     def analyze_query(self, state: State) -> State:
