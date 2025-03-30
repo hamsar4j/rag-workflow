@@ -1,5 +1,10 @@
 from rag_workflow import build_rag_workflow
 import streamlit as st
+import logging
+
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 
 
 @st.cache_resource

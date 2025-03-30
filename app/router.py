@@ -1,5 +1,8 @@
 from openai import OpenAI
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class LLMClient:
@@ -18,7 +21,7 @@ class LLMClient:
                 response_format={"type": "json_object"},
             )
         except Exception as e:
-            print(f"Error: {e}")
+            logging.error(f"Error: {e}")
             return None
         response_text = response.choices[0].message.content
         return json.loads(response_text)

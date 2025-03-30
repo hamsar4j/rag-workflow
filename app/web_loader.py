@@ -28,8 +28,14 @@ urls = [
     "https://www.sutd.edu.sg/enterprise",
     "https://www.sutd.edu.sg/admissions",
     "https://www.sutd.edu.sg/admissions/undergraduate",
+    "https://www.sutd.edu.sg/admissions/undergraduate/application-timeline/",
+    "https://www.sutd.edu.sg/admissions/undergraduate/application-guide/",
+    "https://www.sutd.edu.sg/admissions/undergraduate/financing-options-and-aid/financial-aid/overview/",
+    "https://www.sutd.edu.sg/admissions/undergraduate/admission-requirements/international-qualifications/",
+    "https://www.sutd.edu.sg/admissions/undergraduate/local-diploma/criteria-for-admission/",
     "https://www.sutd.edu.sg/admissions/graduate/masters/",
     "https://www.sutd.edu.sg/admissions/academy",
+    "https://www.sutd.edu.sg/admissions/undergraduate/education-expenses/fees/tuition-fees/",
     "https://www.sutd.edu.sg/campus-life",
     "https://www.sutd.edu.sg/campus-life/undergraduate-opportunities-programme/",
     "https://www.sutd.edu.sg/campus-life/student-life",
@@ -53,6 +59,8 @@ urls = [
     "https://www.sutd.edu.sg/about/happenings",
     "https://www.sutd.edu.sg/about/careers",
     "https://www.sutd.edu.sg/about/partnering-with-sutd",
+    "https://www.sutd.edu.sg/programme-listing/sutd-phd-programme/application/",
+    "https://www.sutd.edu.sg/faq/what-is-the-minimum-cap-score-for-admissions",
 ]
 
 

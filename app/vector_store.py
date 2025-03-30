@@ -2,6 +2,9 @@ from models import Document, Search
 from qdrant_client import QdrantClient, models
 import numpy as np
 import ollama
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class VectorStore:
@@ -39,7 +42,7 @@ class VectorStore:
             collection_name=self.collection_name, query_vector=query_vector, limit=top_k
         )
 
-        print(f"Retrieved {len(results)} results.")
+        logging.info(f"Retrieved {len(results)} results.")
 
         return [
             Search(

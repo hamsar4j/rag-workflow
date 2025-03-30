@@ -4,6 +4,9 @@ from config import config
 from langgraph.graph import START, StateGraph
 from langgraph.checkpoint.memory import MemorySaver
 from router import LLMClient
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class RAGWorkflow:
@@ -51,12 +54,12 @@ class RAGWorkflow:
     def analyze_query(self, state: State) -> State:
         prompt = self.format_query(state["question"])
         query = self.llm.chat_completion(prompt)
-        print(f"Analyzed query: {query}")
+        logging.info(f"Analyzed query: {query}")
         return {"query": query}
 
     def retrieve(self, state: State) -> State:
         query = state["query"]["text"]
-        print(f"Retrieving documents for query: {query}")
+        logging.info(f"Retrieving documents for query: {query}")
         retrieved_docs = self.vector_store.semantic_search(query, top_k=5)
         return {"context": retrieved_docs}
 
@@ -68,7 +71,7 @@ class RAGWorkflow:
         docs_content = "\n\n".join([doc.text for doc in state["context"]])
         messages = self.format_prompt(question=state["question"], context=docs_content)
         response = self.llm.chat_completion(messages)
-        print(f"Generated response: {response}")
+        logging.info(f"Generated response: {response}")
         return {"answer": response["text"]}
 
     def build(self):

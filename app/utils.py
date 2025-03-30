@@ -1,4 +1,7 @@
 from models import Document
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # split the documents into chunks
@@ -14,5 +17,5 @@ def split_docs(
             chunk = text[j : j + chunk_size]
             all_chunks.append(Document(text=chunk, metadata=metadata))
 
-    print(f"Split documents into {len(all_chunks)} chunks.")
+    logging.info(f"Split documents into {len(all_chunks)} chunks.")
     return all_chunks
