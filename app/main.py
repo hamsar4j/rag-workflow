@@ -1,10 +1,11 @@
 import streamlit as st
 import requests
 import json
-from config import config
+
+backend_url = "http://localhost:8000"
 
 
-def query_api(query: str, api_url: str = config.backend_url) -> str:
+def query_api(query: str, api_url: str = backend_url) -> str:
     try:
         headers = {"Content-Type": "application/json"}
         data = {"query": query}

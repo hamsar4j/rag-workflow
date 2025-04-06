@@ -6,9 +6,6 @@ load_dotenv()
 
 
 class Settings(BaseSettings):
-    # backend url
-    backend_url: str = "http://localhost:8000"
-
     # qdrant vector db
     qdrant_url: str = os.getenv("QDRANT_URL")
     qdrant_api_key: str = os.getenv("QDRANT_API_KEY")
@@ -17,7 +14,7 @@ class Settings(BaseSettings):
     # llm api
     llm_base_url: str = "https://api.groq.com/openai/v1"
     llm_api_key: str = os.getenv("GROQ_API_KEY")
-    llm_model: str = "llama-3.3-70b-versatile"
+    llm_model: str = "meta-llama/llama-4-scout-17b-16e-instruct"
 
     # ollama embeddings
     embeddings_model: str = "nomic-embed-text"

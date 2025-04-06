@@ -1,4 +1,4 @@
-from models import Document, Search
+from app.models import Document, Search
 from qdrant_client import QdrantClient, models
 import numpy as np
 import ollama

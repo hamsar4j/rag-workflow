@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends
-from models import QueryRequest
-from rag_workflow import build_rag_workflow
+from app.models import QueryRequest
+from app.workflow.rag_workflow import build_rag_workflow
 import logging
 
 logging.basicConfig(
