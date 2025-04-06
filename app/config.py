@@ -6,6 +6,9 @@ load_dotenv()
 
 
 class Settings(BaseSettings):
+    # backend url
+    backend_url: str = "http://localhost:8000"
+
     # qdrant vector db
     qdrant_url: str = os.getenv("QDRANT_URL")
     qdrant_api_key: str = os.getenv("QDRANT_API_KEY")

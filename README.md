@@ -38,7 +38,13 @@ pip install -r requirements.txt
 ollama serve
 ```
 
-4. Run the workflow
+4. Run the backend server
+
+```console
+fastapi run app/api.py
+```
+
+4. Run the workflow with streamlit ui
 
 ```console
 streamlit run app/main.py

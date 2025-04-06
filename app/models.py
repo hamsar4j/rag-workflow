@@ -1,4 +1,5 @@
-from typing_extensions import TypedDict
+from typing_extensions import TypedDict, Any
+from pydantic import BaseModel
 from dataclasses import dataclass
 
 
@@ -22,3 +23,8 @@ class State(TypedDict):
     answer: str
     context: list[Document]
     # history: list[dict]
+
+
+class QueryRequest(BaseModel):
+    query: str
+    config: dict[str, Any] = {"configurable": {"thread_id": "abc123"}}

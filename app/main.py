@@ -1,23 +1,32 @@
-from rag_workflow import build_rag_workflow
 import streamlit as st
-import logging
-
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+import requests
+import json
+from config import config
 
 
-@st.cache_resource
-def get_rag_workflow():
-    return build_rag_workflow()
+def query_api(query: str, api_url: str = config.backend_url) -> str:
+    try:
+        headers = {"Content-Type": "application/json"}
+        data = {"query": query}
+        response = requests.post(
+            f"{api_url}/query", headers=headers, data=json.dumps(data), timeout=30
+        )
+
+        response.raise_for_status()
+
+        return response.json()["answer"]
+
+    except requests.exceptions.Timeout:
+        return "Error: Request timed out. Please try again."
+    except requests.exceptions.RequestException as e:
+        return f"Error: Could not connect to the backend: {e}"
+    except (KeyError, json.JSONDecodeError) as e:
+        return f"Error: Invalid response from the backend: {e}"
 
 
 def main():
     st.title("🦙 RAG Chatbot")
     st.markdown("### Ask questions to your knowledge base")
-
-    rag_workflow = get_rag_workflow()
-    config = {"configurable": {"thread_id": "abc123"}}
 
     # init chat history
     if "messages" not in st.session_state:
@@ -37,11 +46,9 @@ def main():
             st.markdown(prompt)
 
         # get response
-        with st.spinner("Searching for answers..."):
+        with st.spinner("Searching..."):
             try:
-                state = {"question": prompt}
-                response = rag_workflow.invoke(state, config=config)
-                answer = response["answer"]
+                answer = query_api(prompt)
             except Exception as e:
                 answer = f"Error: {str(e)}"
 
