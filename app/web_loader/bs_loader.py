@@ -5,6 +5,13 @@ urls = [
     "https://www.sutd.edu.sg/",
     "https://www.sutd.edu.sg/education",
     "https://www.sutd.edu.sg/education/undergraduate",
+    "https://www.sutd.edu.sg/education/undergraduate/majors/"
+    "https://www.sutd.edu.sg/education/undergraduate/freshmore-subjects/",
+    "https://www.sutd.edu.sg/education/undergraduate/capstone/overview/",
+    "https://www.sutd.edu.sg/education/undergraduate/minors/",
+    "https://www.sutd.edu.sg/education/undergraduate/specialisation-tracks/",
+    "https://www.sutd.edu.sg/education/undergraduate/special-programmes/",
+    "https://www.sutd.edu.sg/education/undergraduate/sectors/",
     "https://www.sutd.edu.sg/education/graduate/masters",
     "https://www.sutd.edu.sg/admissions/academy/",
     "https://www.sutd.edu.sg/education/accreditation",
@@ -41,6 +48,9 @@ urls = [
     "https://www.sutd.edu.sg/campus-life/student-life",
     "https://www.sutd.edu.sg/campus-life/global-experience-and-exchange/",
     "https://www.sutd.edu.sg/campus-life/career-development/",
+    "https://www.sutd.edu.sg/campus-life/career-development/student/internships/",
+    "https://www.sutd.edu.sg/campus-life/student-life/student-organisations-fifth-row/",
+    "https://www.sutd.edu.sg/campus-life/undergraduate-opportunities-programme/urop/overview/",
     "https://www.sutd.edu.sg/campus-life/wellbeing-services/overview/",
     "https://www.sutd.edu.sg/campus-life/academic-facilities/",
     "https://www.sutd.edu.sg/campus-life/housing/",
@@ -67,7 +77,8 @@ urls = [
 def load_web_docs(urls: list[str]) -> list[str]:
     docs = []
     for url in urls:
-        docs.append(scrape_url(url))
+        content = scrape_url(url)
+        docs.append((content, url))
     return docs
 
 

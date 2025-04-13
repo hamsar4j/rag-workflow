@@ -7,7 +7,7 @@ import logging
 class Reranker:
     def __init__(self, config):
         self.config = config
-        self.tokenizer = AutoTokenizer.from_pretrained(self.config.reranker_model)
+        # self.tokenizer = AutoTokenizer.from_pretrained(self.config.reranker_model)
         self.model = AutoModelForSequenceClassification.from_pretrained(
             self.config.reranker_model,
             torch_dtype="auto",
@@ -23,7 +23,7 @@ class Reranker:
         logging.info(f"Reranker model loaded on {self.device}")
 
     def rerank(self, query, documents, top_k):
-        document_texts = [doc.text for doc in documents]
+        document_texts = [doc["document"] for doc in documents]
 
         try:
             result = self.model.rerank(

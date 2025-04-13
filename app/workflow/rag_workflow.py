@@ -22,17 +22,18 @@ class RAGWorkflow:
             You are a technical assistant. Strictly follow these rules:
 
             1. Answer ONLY using the provided context
-            2. If information is missing, say: "I don't have sufficient information to answer this"
-            3. Maximum 3 sentences, be technical and precise
-            4. No markdown or formatting
-            5. Return ONLY JSON with "text" field
+            2. If information is missing, say: "I don't have sufficient information to answer this."
+            3. Maximum 10 sentences, be technical and precise
+            4. Provide citations with the source URL immediately after the statement in square brackets.
+            5. No markdown or formatting.
+            6. Return ONLY JSON with "text" field.
 
             **Question**: {question}
 
             **Context**: {context}
 
             Example Response:
-            {{ "text": "your concise answer here" }}
+            {{ "text": "The Freshmore curriculum is great.[https://www.sutd.edu.sg/education]" }}
             """
 
     def analyze_query(self, state: State) -> State:
@@ -43,7 +44,11 @@ class RAGWorkflow:
     def retrieve(self, state: State) -> State:
         query = state["query"]["text"]
         logging.info(f"Retrieving documents for query: {query}")
-        retrieved_docs = self.vector_store.semantic_search(query, top_k=10)
+        retrieved_docs_from_db = self.vector_store.semantic_search(query, top_k=10)
+        retrieved_docs = [
+            {"document": doc.text, "metadata": doc.metadata["metadata"]}
+            for doc in retrieved_docs_from_db
+        ]
         return {"context": retrieved_docs}
 
     def rerank(self, state: State) -> State:
@@ -52,20 +57,36 @@ class RAGWorkflow:
         logging.info("Reranking documents")
         query = state["query"]["text"]
         docs = state["context"]
+
         reranked_docs = self.reranker.rerank(query, docs, top_k=5)
-        return {"context": reranked_docs}
+        reranked_docs_with_metadata = []
+
+        for item in reranked_docs:
+            if "index" in item:
+                original_index = int(item["index"])
+                if 0 <= original_index < len(docs):
+                    original_doc = docs[original_index]
+                    reranked_docs_with_metadata.append(original_doc)
+
+        return {"context": reranked_docs_with_metadata}
 
     def generate(self, state: State) -> State:
+        logging.info("Generating response")
         if not state["context"]:
             return {
                 "answer": "Sorry, I couldn't find any relevant information for your query."
             }
-        if not self.config.enable_reranker:
-            docs_content = "\n\n".join([doc.text for doc in state["context"]])
-        else:
-            docs_content = "\n\n".join([doc["document"] for doc in state["context"]])
+
+        docs_content = "\n\n".join(
+            [
+                f"{doc['document']} [source: {doc['metadata'].get('source', 'unknown')}]"
+                for doc in state["context"]
+            ]
+        )
+
         messages = self.format_prompt(question=state["question"], context=docs_content)
         response = self.llm.chat_completion(messages)
+
         logging.info(f"Generated response: {response}")
         return {"answer": response["text"]}
 
