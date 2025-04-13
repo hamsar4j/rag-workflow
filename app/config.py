@@ -20,5 +20,9 @@ class Settings(BaseSettings):
     embeddings_model: str = "nomic-embed-text"
     embeddings_dim: int = 768
 
+    # reranker
+    reranker_model: str = "jinaai/jina-reranker-v2-base-multilingual"
+    enable_reranker: bool = True
 
-config = Settings()
+
+settings = Settings()

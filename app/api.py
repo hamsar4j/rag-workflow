@@ -1,4 +1,5 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException
+from contextlib import asynccontextmanager
 from app.models import QueryRequest
 from app.workflow.rag_workflow import build_rag_workflow
 import logging
@@ -7,22 +8,28 @@ logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 
-app = FastAPI()
+rag_workflow = None
 
 
-def get_rag_workflow():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global rag_workflow
     try:
         rag_workflow = build_rag_workflow()
-        return rag_workflow
+        logging.info("RAG workflow initialized successfully")
+        yield
     except Exception as e:
-        logging.error(f"Error building RAG workflow: {e}")
+        logging.error(f"Error initializing RAG workflow: {e}")
         raise HTTPException(
             status_code=500, detail=f"Failed to initialize RAG workflow: {str(e)}"
         )
 
 
+app = FastAPI(lifespan=lifespan)
+
+
 @app.post("/query")
-async def run_query(request: QueryRequest, rag_workflow=Depends(get_rag_workflow)):
+async def run_query(request: QueryRequest):
     try:
         state = {"question": request.query}
         response = rag_workflow.invoke(state, config=request.config)

@@ -8,3 +8,6 @@ python-dotenv
 pydantic_settings
 streamlit
 fastapi[standard]
+transformers
+torch
+einops
