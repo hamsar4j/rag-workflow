@@ -8,16 +8,6 @@ This project implements a RAG (Retrieval-Augmented Generation) workflow using La
 
 ## Setup
 
-#### optional (if you want to use your own local Qdrant server)
-
-1. Start the Qdrant server
-
-```console
-docker compose up -d
-```
-
-#### run the main RAG app
-
 1. Create a virtual environment
 
 ```bash
