@@ -2,8 +2,7 @@
 
 ## Overview
 
-This project is a simple RAG workflow using LangGraph, Ollama Embeddings and Qdrant Vector Database.
-Streamlit is used to create a simple chat interface.
+This project implements a RAG (Retrieval-Augmented Generation) workflow using LangGraph, Gemini Text Embeddings, and Qdrant for vector storage. It incorporates a Jina re-ranking model to improve retrieval quality. A FastAPI backend serves the application, and Streamlit provides a user-friendly chat interface.
 
 ![](https://github.com/hamsar4j/rag-workflow/blob/main/assets/rag-workflow.png)
 
@@ -21,31 +20,29 @@ docker compose up -d
 
 1. Create a virtual environment
 
-```console
+```bash
 python -m venv .venv
 source .venv/bin/activate
 ```
 
 2. Install the dependencies
 
-```console
+```bash
 pip install -r requirements.txt
 ```
 
-3. Run the embeddings server
+3. Update the `.env` file with your API keys
 
-```console
-ollama serve
-```
+4. Update the `app/config.py` file
 
-4. Run the backend server
+5. Run the backend server
 
-```console
+```bash
 fastapi run app/api.py
 ```
 
-4. Run the workflow with streamlit ui
+6. Run the workflow with streamlit ui
 
-```console
+```bash
 streamlit run app/main.py
 ```

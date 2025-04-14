@@ -1,6 +1,5 @@
 openai
 langgraph
-ollama
 qdrant-client
 beautifulsoup4
 unstructured
