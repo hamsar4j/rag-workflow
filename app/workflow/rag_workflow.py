@@ -19,22 +19,22 @@ class RAGWorkflow:
 
     def format_prompt(self, question: str, context: str) -> str:
         return f"""
-            You are a technical assistant. Strictly follow these rules:
+        You are a technical assistant. Strictly follow these rules:
 
-            1. Answer ONLY using the provided context
-            2. If information is missing, say: "I don't have sufficient information to answer this."
-            3. Maximum 10 sentences, be technical and precise
-            4. Provide citations with the source URL immediately after the statement in square brackets.
-            5. No markdown or formatting.
-            6. Return ONLY JSON with "text" field.
+        1. Answer ONLY using the provided context
+        2. If information is missing, say: "I don't have sufficient information to answer this."
+        3. Maximum 10 sentences, be technical and precise
+        4. Provide citations with the source URL immediately after the statement in square brackets.
+        5. No markdown or formatting.
+        6. Return ONLY JSON with "text" field.
 
-            **Question**: {question}
+        **Question**: {question}
 
-            **Context**: {context}
+        **Context**: {context}
 
-            Example Response:
-            {{ "text": "The Freshmore curriculum is great.[https://www.sutd.edu.sg/education]" }}
-            """
+        Example Response:
+        {{ "text": "The Freshmore curriculum is great.[https://www.sutd.edu.sg/education]" }}
+        """
 
     def analyze_query(self, state: State) -> State:
         # if there is a need to analyze the query, use the LLM to analyze the query

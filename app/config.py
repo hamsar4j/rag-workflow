@@ -17,8 +17,13 @@ class Settings(BaseSettings):
     llm_model: str = "meta-llama/llama-4-scout-17b-16e-instruct"
 
     # ollama embeddings
-    embeddings_model: str = "nomic-embed-text"
-    embeddings_dim: int = 768
+    # embeddings_model: str = "bge-m3"
+    # embeddings_dim: int = 1024
+
+    # embeddings api
+    openai_base_url: str = "https://generativelanguage.googleapis.com/v1beta/openai/"
+    openai_api_key: str = os.getenv("GEMINI_API_KEY")
+    embeddings_model: str = "text-embedding-004"
 
     # reranker
     reranker_model: str = "jinaai/jina-reranker-v2-base-multilingual"
