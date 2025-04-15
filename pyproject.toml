@@ -1,0 +1,20 @@
+[project]
+name = "rag-workflow"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "beautifulsoup4>=4.13.3",
+    "einops>=0.8.1",
+    "fastapi[standard]>=0.115.12",
+    "langgraph>=0.3.30",
+    "openai>=1.74.0",
+    "pydantic-settings>=2.8.1",
+    "python-dotenv>=1.1.0",
+    "qdrant-client>=1.13.3",
+    "streamlit>=1.44.1",
+    "torch>=2.6.0",
+    "transformers>=4.51.3",
+    "unstructured>=0.17.2",
+]
