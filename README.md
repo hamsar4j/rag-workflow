@@ -11,14 +11,14 @@ This project implements a RAG (Retrieval-Augmented Generation) workflow using La
 1. Create a virtual environment
 
 ```bash
-python -m venv .venv
+uv venv
 source .venv/bin/activate
 ```
 
 2. Install the dependencies
 
 ```bash
-pip install -r requirements.txt
+uv add -r requirements.txt
 ```
 
 3. Update the `.env` file with your API keys
