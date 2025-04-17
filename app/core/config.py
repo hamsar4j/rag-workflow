@@ -26,7 +26,7 @@ class Settings(BaseSettings):
 
     # reranker
     reranker_model: str = "jinaai/jina-reranker-v2-base-multilingual"
-    enable_reranker: bool = True
+    enable_reranker: bool = False
 
 
 settings = Settings()

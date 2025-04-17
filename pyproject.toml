@@ -8,6 +8,7 @@ dependencies = [
     "beautifulsoup4>=4.13.3",
     "einops>=0.8.1",
     "fastapi[standard]>=0.115.12",
+    "ipykernel>=6.29.5",
     "langgraph>=0.3.30",
     "openai>=1.74.0",
     "pydantic-settings>=2.8.1",

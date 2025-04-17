@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 
 
-def load_web_docs(urls: list[str]) -> list[str]:
+def load_web_docs(urls: list[str]) -> list[tuple[str, str]]:
     docs = []
     for url in urls:
         content = scrape_url(url)
