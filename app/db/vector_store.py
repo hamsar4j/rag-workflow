@@ -12,19 +12,19 @@ class VectorStore:
         self.embeddings_model = config.embeddings_model
         self.client = QdrantClient(url=config.qdrant_url, api_key=config.qdrant_api_key)
         self.collection_name = config.qdrant_collection_name
-        self.openai_client = OpenAI(
-            api_key=config.openai_api_key, base_url=config.openai_base_url
+        self.embeddings_client = OpenAI(
+            api_key=config.embeddings_api_key, base_url=config.embeddings_base_url
         )
         self.embeddings_model = config.embeddings_model
 
     def get_embeddings(self, doc: str) -> np.ndarray:
-        response = self.openai_client.embeddings.create(
+        response = self.embeddings_client.embeddings.create(
             input=doc, model=self.embeddings_model
         )
         return np.array(response.data[0].embedding)
 
     def add_documents(
-        self, docs: list[Document], embeddings: list[np.ndarray], batch_size: int = 1000
+        self, docs: list[Document], embeddings: np.ndarray, batch_size: int = 1000
     ) -> None:
 
         for i in range(0, len(docs), batch_size):
@@ -57,8 +57,14 @@ class VectorStore:
 
         return [
             Search(
-                text=hit.payload["text"],
-                metadata={k: v for k, v in hit.payload.items() if k != "text"},
+                text=(
+                    hit.payload["text"] if hit.payload and "text" in hit.payload else ""
+                ),
+                metadata={
+                    k: v
+                    for k, v in (hit.payload.items() if hit.payload else {}.items())
+                    if k != "text"
+                },
                 score=hit.score,
             )
             for hit in results

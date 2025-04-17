@@ -13,7 +13,7 @@ class Search:
 @dataclass
 class Document:
     text: str
-    metadata: dict = None
+    metadata: dict
 
 
 @dataclass

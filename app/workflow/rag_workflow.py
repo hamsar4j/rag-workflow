@@ -1,7 +1,7 @@
 from app.models import State
 from app.db.vector_store import VectorStore
 from app.workflow.reranker import Reranker
-from app.config import settings
+from app.core.config import settings
 from langgraph.graph import START, StateGraph
 from langgraph.checkpoint.memory import MemorySaver
 from app.workflow.router import LLMClient

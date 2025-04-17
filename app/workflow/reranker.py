@@ -1,5 +1,5 @@
 # Load model directly
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers import AutoModelForSequenceClassification
 import torch
 import logging
 
@@ -7,7 +7,6 @@ import logging
 class Reranker:
     def __init__(self, config):
         self.config = config
-        # self.tokenizer = AutoTokenizer.from_pretrained(self.config.reranker_model)
         self.model = AutoModelForSequenceClassification.from_pretrained(
             self.config.reranker_model,
             torch_dtype="auto",
