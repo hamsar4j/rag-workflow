@@ -1,4 +1,4 @@
-from app.models import State
+from app.models import State, Document, Search
 from app.db.vector_store import VectorStore
 from app.workflow.reranker import Reranker
 from app.core.config import settings
@@ -38,48 +38,51 @@ class RAGWorkflow:
 
     def analyze_query(self, state: State) -> State:
         # if there is a need to analyze the query, use the LLM to analyze the query
-        query = {"text": state["question"]}
-        return {"query": query}
+        query_text = state["question"]
+        query = Search(text=query_text, metadata={}, score=0.0)
+        return {**state, "query": query}
 
     def retrieve(self, state: State) -> State:
-        query = state["query"]["text"]
+        query = state["query"].text
         logging.info(f"Retrieving documents for query: {query}")
         retrieved_docs_from_db = self.vector_store.semantic_search(query, top_k=10)
-        retrieved_docs = [
-            {"document": doc.text, "metadata": doc.metadata["metadata"]}
+        retrieved_docs: list[Document] = [
+            Document(text=doc.text, metadata=doc.metadata["metadata"])
             for doc in retrieved_docs_from_db
         ]
-        return {"context": retrieved_docs}
+        return {**state, "context": retrieved_docs}
 
     def rerank(self, state: State) -> State:
         if not self.config.enable_reranker:
             return state
         logging.info("Reranking documents")
-        query = state["query"]["text"]
+        query = state["query"].text
         docs = state["context"]
+        docs_list = [{"document": doc.text, "metadata": doc.metadata} for doc in docs]
 
-        reranked_docs = self.reranker.rerank(query, docs, top_k=5)
-        reranked_docs_with_metadata = []
+        reranked_docs = self.reranker.rerank(query, docs_list, top_k=5)
+        reranked_docs_with_metadata: list[Document] = []
+        if reranked_docs:
+            for item in reranked_docs:
+                if "index" in item:
+                    original_index = int(item["index"])
+                    if 0 <= original_index < len(docs):
+                        original_doc = docs[original_index]
+                        reranked_docs_with_metadata.append(original_doc)
 
-        for item in reranked_docs:
-            if "index" in item:
-                original_index = int(item["index"])
-                if 0 <= original_index < len(docs):
-                    original_doc = docs[original_index]
-                    reranked_docs_with_metadata.append(original_doc)
-
-        return {"context": reranked_docs_with_metadata}
+        return {**state, "context": reranked_docs_with_metadata}
 
     def generate(self, state: State) -> State:
         logging.info("Generating response")
         if not state["context"]:
             return {
-                "answer": "Sorry, I couldn't find any relevant information for your query."
+                **state,
+                "answer": "Sorry, I couldn't find any relevant information for your query.",
             }
 
         docs_content = "\n\n".join(
             [
-                f"{doc['document']} [source: {doc['metadata'].get('source', 'unknown')}]"
+                f"{doc.text} [source: {doc.metadata.get('source', 'unknown')}]"
                 for doc in state["context"]
             ]
         )
@@ -88,7 +91,10 @@ class RAGWorkflow:
         response = self.llm.chat_completion(messages)
 
         logging.info(f"Generated response: {response}")
-        return {"answer": response["text"]}
+        return {
+            **state,
+            "answer": response["text"] if response else "No response generated",
+        }
 
     def build(self):
         graph_builder = StateGraph(State).add_sequence(

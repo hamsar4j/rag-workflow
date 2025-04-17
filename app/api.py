@@ -30,9 +30,12 @@ app = FastAPI(lifespan=lifespan)
 
 @app.post("/query")
 async def run_query(request: QueryRequest):
+    if rag_workflow is None:
+        raise HTTPException(status_code=500, detail="RAG workflow not initialized")
     try:
         state = {"question": request.query}
-        response = rag_workflow.invoke(state, config=request.config)
+        config = request.config if request.config else {}
+        response = rag_workflow.invoke(state, config=config)
         answer = response["answer"]
         return {"answer": answer}
     except Exception as e:
