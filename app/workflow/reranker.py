@@ -1,40 +1,32 @@
-# Load model directly
-from transformers import AutoModelForSequenceClassification
-import torch
 import logging
+import requests
+from typing import Optional, Any
 
 
 class Reranker:
     def __init__(self, config):
         self.config = config
-        self.model = AutoModelForSequenceClassification.from_pretrained(
-            self.config.reranker_model,
-            torch_dtype="auto",
-            trust_remote_code=True,
-        )
-        self.device = (
-            "cuda"
-            if torch.cuda.is_available()
-            else "mps" if torch.backends.mps.is_available() else "cpu"
-        )
-        self.model.to(self.device)
-        self.model.eval()
-        logging.info(f"Reranker model loaded on {self.device}")
+        self.base_url = config.reranker_base_url
+        self.model = config.reranker_model
+        self.api_key = config.reranker_api_key
 
-    def rerank(self, query, documents, top_k):
-        document_texts = [doc["document"] for doc in documents]
-
+    def rerank(self, query, documents, top_k) -> Optional[dict[str, Any]]:
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.api_key}",
+        }
+        doc_texts = [doc["document"] for doc in documents]
+        data = {
+            "model": self.model,
+            "query": query,
+            "top_n": top_k,
+            "documents": doc_texts,
+            "return_documents": False,
+        }
         try:
-            result = self.model.rerank(
-                query,
-                document_texts,
-                max_query_length=512,
-                max_length=1024,
-                top_n=top_k,
-            )
-            for item in result:
-                if "index" in item:
-                    item["index"] = int(item["index"])
-            return result
+            response = requests.post(self.base_url, headers=headers, json=data)
+            response.raise_for_status()
+            return response.json()
         except Exception as e:
-            logging.error(f"Error during reranking: {e}")
+            logging.error(f"Error during reranking API call: {e}")
+            return None

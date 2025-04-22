@@ -25,7 +25,9 @@ class Settings(BaseSettings):
     embeddings_dim: int = 768
 
     # reranker
-    reranker_model: str = "jinaai/jina-reranker-v2-base-multilingual"
+    reranker_base_url: str = "https://api.jina.ai/v1/rerank"
+    reranker_api_key: str = os.getenv("JINA_API_KEY", "")
+    reranker_model: str = "jina-reranker-v1-tiny-en"
     enable_reranker: bool = False
 
 

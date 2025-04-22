@@ -62,8 +62,8 @@ class RAGWorkflow:
 
         reranked_docs = self.reranker.rerank(query, docs_list, top_k=5)
         reranked_docs_with_metadata: list[Document] = []
-        if reranked_docs:
-            for item in reranked_docs:
+        if reranked_docs and "results" in reranked_docs:
+            for item in reranked_docs["results"]:
                 if "index" in item:
                     original_index = int(item["index"])
                     if 0 <= original_index < len(docs):
