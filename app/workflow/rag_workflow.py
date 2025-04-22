@@ -1,4 +1,4 @@
-from app.models import State, Document, Search
+from app.models.models import State, Document, Search
 from app.db.vector_store import VectorStore
 from app.workflow.reranker import Reranker
 from app.core.config import settings

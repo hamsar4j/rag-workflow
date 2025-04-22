@@ -23,7 +23,7 @@ uv add -r requirements.txt
 
 3. Update the `.env` file with your API keys
 
-4. Update the `app/config.py` file
+4. Update the `app/core/config.py` file
 
 5. Run the backend server
 

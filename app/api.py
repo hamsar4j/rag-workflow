@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from contextlib import asynccontextmanager
-from app.models import QueryRequest
+from app.models.models import QueryRequest
 from app.workflow.rag_workflow import build_rag_workflow
 import logging
 
