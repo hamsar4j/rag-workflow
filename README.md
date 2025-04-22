@@ -18,7 +18,7 @@ source .venv/bin/activate
 2. Install the dependencies
 
 ```bash
-uv add -r requirements.txt
+uv sync
 ```
 
 3. Update the `.env` file with your API keys
