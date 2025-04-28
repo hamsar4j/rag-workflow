@@ -17,11 +17,9 @@ class Settings(BaseSettings):
     llm_model: str = "meta-llama/llama-4-scout-17b-16e-instruct"
 
     # embeddings api
-    embeddings_base_url: str = (
-        "https://generativelanguage.googleapis.com/v1beta/openai/"
-    )
-    embeddings_api_key: str = os.getenv("GEMINI_API_KEY", "")
-    embeddings_model: str = "text-embedding-004"
+    embeddings_base_url: str = "https://api.together.xyz/v1"
+    embeddings_api_key: str = os.getenv("TOGETHER_API_KEY", "")
+    embeddings_model: str = "BAAI/bge-base-en-v1.5"
     embeddings_dim: int = 768
 
     # reranker
