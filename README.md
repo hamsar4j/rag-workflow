@@ -83,21 +83,28 @@ uv sync
    embeddings_model: str = "BAAI/bge-base-en-v1.5"
    ```
 
-### 3. Start Services
+### 3. Ingest Data
 
-1. Start Qdrant vector database:
+Before querying, you need to ingest data into the vector store. This is done using the `ingest_data.ipynb` Jupyter notebook.
 
-   ```bash
-   docker-compose up -d
-   ```
+1. Ensure the Qdrant service is running (`docker-compose up -d`).
+2. Open the `ingest_data.ipynb` notebook.
+3. Run the cells in the notebook sequentially. This will:
+   - Create the Qdrant collection.
+   - Load web documents from predefined URLs.
+   - Split the documents into chunks.
+   - Generate embeddings for the chunks.
+   - Store the documents and their embeddings in Qdrant.
 
-2. Run the FastAPI backend server:
+### 4. Start Services
+
+1. Run the FastAPI backend server:
 
    ```bash
    fastapi run app/api.py
    ```
 
-3. In a new terminal, run the Streamlit frontend:
+2. In a new terminal, run the Streamlit frontend:
 
    ```bash
    streamlit run app/main.py
