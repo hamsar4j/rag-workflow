@@ -26,6 +26,28 @@ def query_api(query: str, api_url: str = backend_url) -> str:
 
 
 def main():
+    # Sidebar
+    with st.sidebar:
+        st.header("🦙 RAG Chatbot")
+        st.markdown(
+            """
+        This is a Retrieval-Augmented Generation (RAG) chatbot that can answer questions
+        based on your knowledge base.
+        """
+        )
+
+        st.markdown(f"**Backend URL:** `{backend_url}`")
+
+        if st.button("Clear Chat History"):
+            st.session_state.messages = []
+            st.rerun()
+
+        st.markdown("---")
+        st.markdown("**Tips:**")
+        st.markdown("- Be specific with your questions")
+        st.markdown("- Ask about the content in your knowledge base")
+
+    # Main title
     st.title("🦙 RAG Chatbot")
     st.markdown("### Ask questions to your knowledge base")
 
@@ -36,7 +58,11 @@ def main():
     # display chat messages
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+            # Handle error messages with a different style
+            if message["content"].startswith("Error:"):
+                st.error(message["content"])
+            else:
+                st.markdown(message["content"])
 
     if prompt := st.chat_input("What would you like to know?"):
         # add user message to chat history
@@ -55,7 +81,11 @@ def main():
 
         # display assistant response
         with st.chat_message("assistant"):
-            st.markdown(answer)
+            # Handle error messages with a different style
+            if answer.startswith("Error:"):
+                st.error(answer)
+            else:
+                st.markdown(answer)
 
         # add assistant response to chat history
         st.session_state.messages.append({"role": "assistant", "content": answer})
