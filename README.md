@@ -1,4 +1,4 @@
-# 🦙 RAG Workflow Application
+# RAG Workflow
 
 ## Overview
 
@@ -124,7 +124,9 @@ Before querying, you need to ingest data into the vector store. This is done usi
    - Optionally re-rank results for better quality
    - Generate a response based on the retrieved context
 
-## API Endpoints
+### API Access
+
+You can also interact with the RAG system programmatically via its API:
 
 - `POST /query` - Submit a question to the RAG system
 
@@ -150,6 +152,7 @@ rag-workflow/
 │   ├── web_loader/         # Web document loading
 │   └── workflow/           # RAG workflow implementation
 ├── assets/                 # Images and documentation assets
+├── ingest_data.ipynb       # Jupyter notebook for data ingestion
 ├── .env.example            # Environment variable template
 ├── docker-compose.yaml     # Qdrant service configuration
 ├── pyproject.toml          # Project dependencies
@@ -158,20 +161,13 @@ rag-workflow/
 
 ## Key Features
 
-### Retrieval-Augmented Generation Pipeline
-
-The RAG workflow consists of multiple stages:
-
-1. **Query Analysis**: Initial processing of user questions
-2. **Document Retrieval**: Semantic search in vector database
-3. **Re-ranking** (optional): Improved result ordering using Jina AI
-4. **Response Generation**: Context-aware answer generation
-
-### Configuration Options
-
-- Toggle re-ranking functionality via `enable_reranker` in config
-- Customize LLM and embedding models
-- Adjust retrieval parameters (top_k, etc.)
+- **Retrieval-Augmented Generation (RAG) Pipeline**: Combines semantic search with LLM generation for context-aware answers.
+- **Modular Architecture**: Built with FastAPI, Streamlit, LangGraph, and Qdrant for scalability and maintainability.
+- **Configurable Components**:
+  - Toggle re-ranking functionality via `enable_reranker` in config.
+  - Customize LLM and embedding models.
+  - Adjust retrieval parameters (top_k, etc.).
+- **Web Data Ingestion**: Includes a Jupyter notebook (`ingest_data.ipynb`) for loading and processing web documents into the vector store.
 
 ## Troubleshooting
 
