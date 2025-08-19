@@ -12,9 +12,9 @@ class Settings(BaseSettings):
     qdrant_collection_name: str = "sutd"
 
     # llm api
-    llm_base_url: str = "https://api.groq.com/openai/v1"
-    llm_api_key: str = os.getenv("GROQ_API_KEY", "")
-    llm_model: str = "meta-llama/llama-4-scout-17b-16e-instruct"
+    llm_base_url: str = "https://api.together.xyz/v1"
+    llm_api_key: str = os.getenv("TOGETHER_API_KEY", "")
+    llm_model: str = "openai/gpt-oss-20b"
 
     # embeddings api
     embeddings_base_url: str = "https://api.together.xyz/v1"

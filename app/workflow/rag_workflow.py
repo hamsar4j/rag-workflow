@@ -44,7 +44,7 @@ class RAGWorkflow:
 
     def retrieve(self, state: State) -> State:
         query = state["query"].text
-        logging.info(f"Retrieving documents for query: {query}")
+        logger.info(f"Retrieving documents for query: {query}")
         retrieved_docs_from_db = self.vector_store.semantic_search(query, top_k=10)
         retrieved_docs: list[Document] = [
             Document(text=doc.text, metadata=doc.metadata["metadata"])
@@ -55,7 +55,7 @@ class RAGWorkflow:
     def rerank(self, state: State) -> State:
         if not self.config.enable_reranker:
             return state
-        logging.info("Reranking documents")
+        logger.info("Reranking documents")
         query = state["query"].text
         docs = state["context"]
         docs_list = [{"document": doc.text, "metadata": doc.metadata} for doc in docs]
@@ -73,7 +73,7 @@ class RAGWorkflow:
         return {**state, "context": reranked_docs_with_metadata}
 
     def generate(self, state: State) -> State:
-        logging.info("Generating response")
+        logger.info("Generating response")
         if not state["context"]:
             return {
                 **state,
@@ -90,7 +90,7 @@ class RAGWorkflow:
         messages = self.format_prompt(question=state["question"], context=docs_content)
         response = self.llm.chat_completion(messages)
 
-        logging.info(f"Generated response: {response}")
+        logger.info(f"Generated response: {response}")
         return {
             **state,
             "answer": response["text"] if response else "No response generated",

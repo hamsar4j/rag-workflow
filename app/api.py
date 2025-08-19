@@ -4,9 +4,8 @@ from app.models.models import QueryRequest
 from app.workflow import build_rag_workflow
 import logging
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 rag_workflow = None
 
@@ -16,10 +15,10 @@ async def lifespan(app: FastAPI):
     global rag_workflow
     try:
         rag_workflow = build_rag_workflow()
-        logging.info("RAG workflow initialized successfully")
+        logger.info("RAG workflow initialized successfully")
         yield
     except Exception as e:
-        logging.error(f"Error initializing RAG workflow: {e}")
+        logger.error(f"Error initializing RAG workflow: {e}")
         raise HTTPException(
             status_code=500, detail=f"Failed to initialize RAG workflow: {str(e)}"
         )
@@ -39,7 +38,7 @@ async def run_query(request: QueryRequest):
         answer = response["answer"]
         return {"answer": answer}
     except Exception as e:
-        logging.error(f"Error during RAG workflow invocation: {e}")
+        logger.error(f"Error during RAG workflow invocation: {e}")
         raise HTTPException(status_code=500, detail=f"RAG workflow failed: {str(e)}")
 
 

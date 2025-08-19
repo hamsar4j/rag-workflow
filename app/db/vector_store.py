@@ -53,7 +53,7 @@ class VectorStore:
             collection_name=self.collection_name, query_vector=query_vector, limit=top_k
         )
 
-        logging.info(f"Retrieved {len(results)} results.")
+        logger.info(f"Retrieved {len(results)} results.")
 
         return [
             Search(
