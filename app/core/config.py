@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     # embeddings api
     embeddings_base_url: str = "https://api.together.xyz/v1"
     embeddings_api_key: str = os.getenv("TOGETHER_API_KEY", "")
-    embeddings_model: str = "BAAI/bge-base-en-v1.5"
+    embeddings_model: str = "Alibaba-NLP/gte-modernbert-base"
     embeddings_dim: int = 768
 
     # reranker

@@ -15,7 +15,7 @@ The application follows a modular architecture with the following components:
 3. **Workflow Engine**: LangGraph-powered RAG pipeline with multiple stages
 4. **Vector Store**: Qdrant for efficient similarity search
 5. **AI Models**:
-   - Embeddings: BAAI/bge-base-en-v1.5 via Together AI
+   - Embeddings: Alibaba-NLP/gte-modernbert-base via Together AI
    - Generation: openai/gpt-oss-20b via Together AI
    - Re-ranking: jina-reranker-v1-tiny-en via Jina AI (optional)
 
@@ -80,7 +80,7 @@ uv sync
    
    # LLM and embedding models can be changed as needed
    llm_model: str = "openai/gpt-oss-20b"
-   embeddings_model: str = "BAAI/bge-base-en-v1.5"
+   embeddings_model: str = "Alibaba-NLP/gte-modernbert-base"
    ```
 
 ### 3. Ingest Data
