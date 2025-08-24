@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     # llm api
     llm_base_url: str = "https://api.together.xyz/v1"
     llm_api_key: str = os.getenv("TOGETHER_API_KEY", "")
-    llm_model: str = "openai/gpt-oss-20b"
+    llm_model: str = "zai-org/GLM-4.5-Air-FP8"
 
     # embeddings api
     embeddings_base_url: str = "https://api.together.xyz/v1"

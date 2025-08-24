@@ -1,5 +1,5 @@
 from app.models.models import State, Document, Search
-from app.db.vector_store import VectorStore
+from app.db.vector_db import VectorDB
 from app.workflow.reranker import Reranker
 from app.core.config import settings
 from langgraph.graph import START, StateGraph
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class RAGWorkflow:
     def __init__(self):
         self.config = settings
-        self.vector_store = VectorStore(self.config)
+        self.vector_db = VectorDB(self.config)
         self.llm = LLMClient(self.config)
         self.reranker = Reranker(self.config)
 
@@ -45,7 +45,7 @@ class RAGWorkflow:
     def retrieve(self, state: State) -> State:
         query = state["query"].text
         logger.info(f"Retrieving documents for query: {query}")
-        retrieved_docs_from_db = self.vector_store.semantic_search(query, top_k=10)
+        retrieved_docs_from_db = self.vector_db.semantic_search(query, top_k=10)
         retrieved_docs: list[Document] = [
             Document(text=doc.text, metadata=doc.metadata["metadata"])
             for doc in retrieved_docs_from_db

@@ -7,7 +7,7 @@ from openai import OpenAI
 logger = logging.getLogger(__name__)
 
 
-class VectorStore:
+class VectorDB:
     def __init__(self, config):
         self.embeddings_model = config.embeddings_model
         self.client = QdrantClient(url=config.qdrant_url, api_key=config.qdrant_api_key)
@@ -47,11 +47,15 @@ class VectorStore:
             )
 
     def semantic_search(self, query: str, top_k: int = 5) -> list[Search]:
-        query_vector = self.get_embeddings(query)
+        query_embedding = self.get_embeddings(query)
 
-        results = self.client.search(
-            collection_name=self.collection_name, query_vector=query_vector, limit=top_k
+        query_response = self.client.query_points(
+            collection_name=self.collection_name,
+            query=query_embedding,
+            limit=top_k,
         )
+
+        results = query_response.points
 
         logger.info(f"Retrieved {len(results)} results.")
 
