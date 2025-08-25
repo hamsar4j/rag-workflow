@@ -37,7 +37,8 @@ class RAGWorkflow:
         """
 
     def analyze_query(self, state: State) -> State:
-        # if there is a need to analyze the query, use the LLM to analyze the query
+        # Prepare the query for retrieval
+        # Currently a pass-through step that could be extended for query analysis
         query_text = state["question"]
         query = Search(text=query_text, metadata={}, score=0.0)
         return {**state, "query": query}
@@ -45,7 +46,9 @@ class RAGWorkflow:
     def retrieve(self, state: State) -> State:
         query = state["query"].text
         logger.info(f"Retrieving documents for query: {query}")
-        retrieved_docs_from_db = self.vector_db.hybrid_search(query, top_k=10)
+        retrieved_docs_from_db = self.vector_db.hybrid_search(
+            query, top_k=self.config.qdrant_search_top_k
+        )
         retrieved_docs: list[Document] = [
             Document(text=doc.text, metadata=doc.metadata["metadata"])
             for doc in retrieved_docs_from_db

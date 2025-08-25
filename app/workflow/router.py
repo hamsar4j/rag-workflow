@@ -26,5 +26,5 @@ class LLMClient:
                 return None
             return json.loads(response_text)
         except Exception as e:
-            logging.error(f"Error: {e}")
+            logger.error(f"Error: {e}")
             return None

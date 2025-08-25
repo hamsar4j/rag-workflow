@@ -55,14 +55,13 @@ class VectorDB:
                     and j < len(batch_sparse)
                     and batch_sparse[j] is not None
                 ):
-                    # Make sure we're handling the sparse embedding correctly
                     sparse_embedding = batch_sparse[j]
-                    # If it's a generator or iterator, convert to object
-                    if hasattr(sparse_embedding, "as_object"):
-                        sparse_obj = sparse_embedding.as_object()
-                    else:
-                        # If it's already in the right format, use it directly
-                        sparse_obj = sparse_embedding
+                    # Convert to object if it has as_object method, otherwise use directly
+                    sparse_obj = (
+                        sparse_embedding.as_object()
+                        if hasattr(sparse_embedding, "as_object")
+                        else sparse_embedding
+                    )
 
                     point_data["vector"] = {
                         "dense": (
@@ -82,7 +81,7 @@ class VectorDB:
 
                 points.append(models.PointStruct(**point_data))
 
-            print(
+            logger.info(
                 f"Upserting {len(points)} points from {i} to {i + len(batch_docs)}..."
             )
             if len(points) > 0:  # Only upsert if we have points
@@ -91,7 +90,7 @@ class VectorDB:
                     points=points,
                 )
             else:
-                print("Warning: No points to upsert in this batch")
+                logger.warning("No points to upsert in this batch")
 
     # Hybrid search method using Reciprocal Rank Fusion (RRF)
     def hybrid_search(self, query: str, top_k: int = 5) -> list[Search]:
