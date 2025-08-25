@@ -1,5 +1,6 @@
 from app.models.models import Document, Search
 from qdrant_client import QdrantClient, models
+from fastembed import SparseTextEmbedding
 import numpy as np
 import logging
 from openai import OpenAI
@@ -16,6 +17,7 @@ class VectorDB:
             api_key=config.embeddings_api_key, base_url=config.embeddings_base_url
         )
         self.embeddings_model = config.embeddings_model
+        self.sparse_model = SparseTextEmbedding("Qdrant/bm25")
 
     def get_embeddings(self, doc: str) -> np.ndarray:
         response = self.embeddings_client.embeddings.create(
@@ -24,27 +26,72 @@ class VectorDB:
         return np.array(response.data[0].embedding)
 
     def add_documents(
-        self, docs: list[Document], embeddings: np.ndarray, batch_size: int = 1000
+        self,
+        docs: list[Document],
+        dense_embeddings: np.ndarray,
+        sparse_embeddings=None,
+        batch_size: int = 1000,
     ) -> None:
 
         for i in range(0, len(docs), batch_size):
             batch_docs = docs[i : i + batch_size]
-            batch_embeddings = embeddings[i : i + batch_size]
-
-            points = [
-                models.PointStruct(
-                    id=i + j,  # offset from overall start index
-                    vector=embedding,
-                    payload={"text": doc.text, "metadata": doc.metadata},
-                )
-                for j, (doc, embedding) in enumerate(zip(batch_docs, batch_embeddings))
-            ]
-
-            print(f"Upserting points {i} to {i + len(batch_docs)}...")
-            self.client.upsert(
-                collection_name=self.collection_name,
-                points=points,
+            batch_embeddings = dense_embeddings[i : i + batch_size]
+            batch_sparse = (
+                sparse_embeddings[i : i + batch_size]
+                if sparse_embeddings is not None
+                else None
             )
+
+            points = []
+            for j, (doc, embedding) in enumerate(zip(batch_docs, batch_embeddings)):
+                point_data = {
+                    "id": i + j,  # offset from overall start index
+                    "payload": {"text": doc.text, "metadata": doc.metadata},
+                }
+
+                # If sparse embeddings are provided, use hybrid vector format
+                if (
+                    batch_sparse is not None
+                    and j < len(batch_sparse)
+                    and batch_sparse[j] is not None
+                ):
+                    # Make sure we're handling the sparse embedding correctly
+                    sparse_embedding = batch_sparse[j]
+                    # If it's a generator or iterator, convert to object
+                    if hasattr(sparse_embedding, "as_object"):
+                        sparse_obj = sparse_embedding.as_object()
+                    else:
+                        # If it's already in the right format, use it directly
+                        sparse_obj = sparse_embedding
+
+                    point_data["vector"] = {
+                        "dense": (
+                            embedding.tolist()
+                            if hasattr(embedding, "tolist")
+                            else embedding
+                        ),  # Dense vector
+                        "bm25": sparse_obj,  # Sparse vector
+                    }
+                else:
+                    # Only dense vector
+                    point_data["vector"] = (
+                        embedding.tolist()
+                        if hasattr(embedding, "tolist")
+                        else embedding
+                    )
+
+                points.append(models.PointStruct(**point_data))
+
+            print(
+                f"Upserting {len(points)} points from {i} to {i + len(batch_docs)}..."
+            )
+            if len(points) > 0:  # Only upsert if we have points
+                self.client.upsert(
+                    collection_name=self.collection_name,
+                    points=points,
+                )
+            else:
+                print("Warning: No points to upsert in this batch")
 
     def semantic_search(self, query: str, top_k: int = 5) -> list[Search]:
         query_embedding = self.get_embeddings(query)
