@@ -45,7 +45,7 @@ class RAGWorkflow:
     def retrieve(self, state: State) -> State:
         query = state["query"].text
         logger.info(f"Retrieving documents for query: {query}")
-        retrieved_docs_from_db = self.vector_db.semantic_search(query, top_k=10)
+        retrieved_docs_from_db = self.vector_db.hybrid_search(query, top_k=10)
         retrieved_docs: list[Document] = [
             Document(text=doc.text, metadata=doc.metadata["metadata"])
             for doc in retrieved_docs_from_db
