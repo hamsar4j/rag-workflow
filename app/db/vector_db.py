@@ -93,14 +93,40 @@ class VectorDB:
             else:
                 print("Warning: No points to upsert in this batch")
 
-    def semantic_search(self, query: str, top_k: int = 5) -> list[Search]:
-        query_embedding = self.get_embeddings(query)
+    # Hybrid search method using Reciprocal Rank Fusion (RRF)
+    def hybrid_search(self, query: str, top_k: int = 5) -> list[Search]:
 
-        query_response = self.client.query_points(
-            collection_name=self.collection_name,
-            query=query_embedding,
-            limit=top_k,
-        )
+        # Get dense embedding
+        dense_embedding = self.get_embeddings(query)
+
+        # Get sparse embedding
+        sparse_embedding_result = list(self.sparse_model.embed([query]))
+        sparse_embedding = sparse_embedding_result[0]
+
+        # Perform hybrid search using both dense and sparse vectors
+        try:
+            query_response = self.client.query_points(
+                collection_name=self.collection_name,
+                prefetch=[
+                    models.Prefetch(query=dense_embedding, using="dense"),
+                    models.Prefetch(
+                        query=models.SparseVector(**sparse_embedding.as_object()),
+                        using="bm25",
+                    ),
+                ],
+                query=models.FusionQuery(fusion=models.Fusion.RRF),
+                limit=top_k,
+            )
+        except Exception as e:
+            logger.warning(
+                f"Hybrid search failed, falling back to dense-only search: {e}"
+            )
+            query_response = self.client.query_points(
+                collection_name=self.collection_name,
+                query=dense_embedding,
+                using="dense",
+                limit=top_k,
+            )
 
         results = query_response.points
 
