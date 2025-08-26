@@ -7,8 +7,8 @@ logger = logging.getLogger(__name__)
 
 def recursive_split(
     text: str,
-    chunk_size: int = 500,
-    overlap: int = 100,
+    chunk_size: int = 512,
+    overlap: int = 96,
     separators: Optional[list[str]] = None,
 ) -> list[str]:
     """Recursively split text into chunks of specified size with overlap."""
