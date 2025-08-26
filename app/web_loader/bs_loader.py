@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 
 def load_web_docs(urls: list[str]) -> list[tuple[str, str]]:
     """Load content from a list of URLs."""
+
     docs = []
     for url in urls:
         logger.info(f"Scraping URL: {url}")
@@ -17,6 +18,7 @@ def load_web_docs(urls: list[str]) -> list[tuple[str, str]]:
 
 def scrape_url(url: str) -> str:
     """Scrape content from a single URL."""
+
     try:
         response = requests.get(url, timeout=30)
         response.raise_for_status()

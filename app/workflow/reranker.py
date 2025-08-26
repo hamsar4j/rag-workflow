@@ -16,6 +16,7 @@ class Reranker:
         self, query: str, documents: list[dict[str, Any]], top_k: int
     ) -> Optional[dict[str, Any]]:
         """Rerank documents based on their relevance to a query."""
+
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.api_key}",

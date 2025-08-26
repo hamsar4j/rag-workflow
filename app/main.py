@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 import json
-from app.core.config import settings
+from core.config import settings
 
 backend_url = settings.backend_url
 

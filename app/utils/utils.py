@@ -12,6 +12,7 @@ def recursive_split(
     separators: Optional[list[str]] = None,
 ) -> list[str]:
     """Recursively split text into chunks of specified size with overlap."""
+
     if separators is None:
         separators = ["\n\n", "\n", ".", " ", ""]
 

@@ -111,6 +111,7 @@ class RAGWorkflow:
 
     def build(self):
         """Build and compile the LangGraph workflow."""
+
         graph_builder = StateGraph(State).add_sequence(
             [self.analyze_query, self.retrieve, self.rerank, self.generate]
         )
