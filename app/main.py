@@ -1,8 +1,9 @@
 import streamlit as st
 import requests
 import json
+from app.core.config import settings
 
-backend_url = "http://localhost:8000"
+backend_url = settings.backend_url
 
 
 def query_api(query: str, api_url: str = backend_url) -> str:

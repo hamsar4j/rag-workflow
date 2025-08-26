@@ -1,15 +1,18 @@
-from app.models.models import Document, Search
+from app.models.models import Document, SearchResult
 from qdrant_client import QdrantClient, models
 from fastembed import SparseTextEmbedding
 import numpy as np
 import logging
 from openai import OpenAI
+from typing import Optional, Any
 
 logger = logging.getLogger(__name__)
 
 
 class VectorDB:
-    def __init__(self, config):
+    """Vector database client for Qdrant with hybrid search capabilities."""
+
+    def __init__(self, config: Any):
         self.embeddings_model = config.embeddings_model
         self.client = QdrantClient(url=config.qdrant_url, api_key=config.qdrant_api_key)
         self.collection_name = config.qdrant_collection_name
@@ -20,6 +23,8 @@ class VectorDB:
         self.sparse_model = SparseTextEmbedding("Qdrant/bm25")
 
     def get_embeddings(self, doc: str) -> np.ndarray:
+        """Generate dense embeddings for a document using the configured embeddings API."""
+
         response = self.embeddings_client.embeddings.create(
             input=doc, model=self.embeddings_model
         )
@@ -29,10 +34,18 @@ class VectorDB:
         self,
         docs: list[Document],
         dense_embeddings: np.ndarray,
-        sparse_embeddings=None,
+        sparse_embeddings: Optional[list[Any]] = None,
         batch_size: int = 1000,
     ) -> None:
+        """
+        Add documents and their embeddings to the vector database.
 
+        Args:
+            docs: List of Document objects to add
+            dense_embeddings: Array of dense embeddings for the documents
+            sparse_embeddings: Optional list of sparse embeddings for the documents
+            batch_size: Number of documents to process in each batch
+        """
         for i in range(0, len(docs), batch_size):
             batch_docs = docs[i : i + batch_size]
             batch_embeddings = dense_embeddings[i : i + batch_size]
@@ -92,9 +105,17 @@ class VectorDB:
             else:
                 logger.warning("No points to upsert in this batch")
 
-    # Hybrid search method using Reciprocal Rank Fusion (RRF)
-    def hybrid_search(self, query: str, top_k: int = 5) -> list[Search]:
+    def hybrid_search(self, query: str, top_k: int = 5) -> list[SearchResult]:
+        """
+        Perform hybrid search using both dense and sparse embeddings with RRF fusion.
 
+        Args:
+            query: Search query text
+            top_k: Number of results to return
+
+        Returns:
+            List of Search results ranked by relevance
+        """
         # Get dense embedding
         dense_embedding = self.get_embeddings(query)
 
@@ -132,7 +153,7 @@ class VectorDB:
         logger.info(f"Retrieved {len(results)} results.")
 
         return [
-            Search(
+            SearchResult(
                 text=(
                     hit.payload["text"] if hit.payload and "text" in hit.payload else ""
                 ),

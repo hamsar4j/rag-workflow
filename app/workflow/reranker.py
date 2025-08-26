@@ -4,13 +4,18 @@ from typing import Optional, Any
 
 
 class Reranker:
-    def __init__(self, config):
+    """Client for interacting with reranking APIs."""
+
+    def __init__(self, config: Any):
         self.config = config
         self.base_url = config.reranker_base_url
         self.model = config.reranker_model
         self.api_key = config.reranker_api_key
 
-    def rerank(self, query, documents, top_k) -> Optional[dict[str, Any]]:
+    def rerank(
+        self, query: str, documents: list[dict[str, Any]], top_k: int
+    ) -> Optional[dict[str, Any]]:
+        """Rerank documents based on their relevance to a query."""
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.api_key}",
@@ -24,9 +29,14 @@ class Reranker:
             "return_documents": False,
         }
         try:
-            response = requests.post(self.base_url, headers=headers, json=data)
+            response = requests.post(
+                self.base_url, headers=headers, json=data, timeout=30
+            )
             response.raise_for_status()
             return response.json()
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Network error during reranking API call: {e}")
+            return None
         except Exception as e:
             logging.error(f"Error during reranking API call: {e}")
             return None

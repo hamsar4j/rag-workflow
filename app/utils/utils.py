@@ -1,5 +1,6 @@
 from app.models.models import Document
 import logging
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -8,8 +9,12 @@ def recursive_split(
     text: str,
     chunk_size: int = 500,
     overlap: int = 100,
-    separators: list[str] = ["\n\n", "\n", ".", " ", ""],
+    separators: Optional[list[str]] = None,
 ) -> list[str]:
+    """Recursively split text into chunks of specified size with overlap."""
+    if separators is None:
+        separators = ["\n\n", "\n", ".", " ", ""]
+
     if len(text) <= chunk_size:
         return [text]
 
@@ -42,10 +47,14 @@ def recursive_split(
 def split_docs(
     docs: list[tuple[str, str]], chunk_size: int = 500, overlap: int = 100
 ) -> list[Document]:
+    """Split a list of documents into smaller chunks."""
+
     all_chunks = []
+
     for text, url in docs:
         metadata = {"source": url}
         for chunk in recursive_split(str(text), chunk_size, overlap):
             all_chunks.append(Document(text=chunk, metadata=metadata))
     logging.info(f"Split documents into {len(all_chunks)} chunks.")
+
     return all_chunks

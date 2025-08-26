@@ -6,6 +6,11 @@ load_dotenv()
 
 
 class Settings(BaseSettings):
+    """Configuration settings for the RAG application."""
+
+    # fastAPI backend
+    backend_url: str = os.getenv("BACKEND_URL", "http://localhost:8000")
+
     # qdrant vector db
     qdrant_url: str = os.getenv("QDRANT_URL", "")
     qdrant_api_key: str = os.getenv("QDRANT_API_KEY", "")

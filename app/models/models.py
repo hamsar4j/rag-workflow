@@ -4,22 +4,22 @@ from dataclasses import dataclass
 
 
 @dataclass
-class Search:
+class SearchResult:
     text: str
-    metadata: dict
+    metadata: dict[str, Any]
     score: float
 
 
 @dataclass
 class Document:
     text: str
-    metadata: dict
+    metadata: dict[str, Any]
 
 
 @dataclass
 class State(TypedDict):
     question: str
-    query: Search
+    query: SearchResult
     answer: str
     context: list[Document]
     # history: list[dict]
