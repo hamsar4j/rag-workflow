@@ -12,6 +12,7 @@ dependencies = [
     "langgraph>=0.3.30",
     "openai>=1.74.0",
     "pydantic-settings>=2.8.1",
+    "pymupdf>=1.26.4",
     "python-dotenv>=1.1.0",
     "qdrant-client>=1.13.3",
     "streamlit>=1.44.1",

@@ -86,7 +86,33 @@ uv sync
 
 ### 3. Ingest Data
 
-Before querying, you need to ingest data into the vector store. This is done using the `ingest_data.ipynb` Jupyter notebook.
+Before querying, you need to ingest data into the vector store. You can do this using the command-line ingestion tool.
+
+#### Using the Command-Line Tool (Recommended)
+
+The new ingestion tool supports both web URLs and PDF files. Since you're using `uv` for dependency management, you can run the tool directly with `uv run`:
+
+```bash
+# Ingest default URLs (from app/ingestion/web_loader/bs_utils.py)
+uv run python -m app.ingestion.cli
+
+# Ingest specific URLs
+uv run python -m app.ingestion.cli --urls "https://example.com/page1" "https://example.com/page2"
+
+# Ingest PDF files
+uv run python -m app.ingestion.cli --pdfs "path/to/document1.pdf" "path/to/document2.pdf"
+
+# Ingest both URLs and PDFs
+uv run python -m app.ingestion.cli --urls "https://example.com/page1" --pdfs "path/to/document.pdf"
+
+# Customize chunking parameters
+uv run python -m app.ingestion.cli --chunk-size 1000 --overlap 200
+
+# Specify cache directory
+uv run python -m app.ingestion.cli --cache-dir "/path/to/cache"
+```
+
+#### Using the Jupyter Notebook
 
 1. Ensure the Qdrant service is running (`docker-compose up -d`).
 2. Open the `ingest_data.ipynb` notebook.
@@ -101,7 +127,9 @@ Before querying, you need to ingest data into the vector store. This is done usi
 
 The data ingestion process consists of several key steps:
 
-1. **Document Loading**: Web pages are scraped from predefined URLs using BeautifulSoup. The content is extracted and cleaned.
+1. **Document Loading**:
+   - Web pages are scraped from URLs using BeautifulSoup. The content is extracted and cleaned.
+   - PDF documents are processed using PyMuPDF to extract text content.
 
 2. **Document Chunking**: Large documents are split into smaller chunks to improve retrieval precision. The chunking process uses a recursive approach that tries to split on paragraph breaks, line breaks, sentences, and words.
 
@@ -111,7 +139,7 @@ The data ingestion process consists of several key steps:
 
 4. **Storage**: Both embeddings along with the document text and metadata are stored in Qdrant, enabling hybrid search capabilities.
 
-The ingestion process includes caching mechanisms to avoid reprocessing documents and embeddings when rerunning the notebook.
+The ingestion process includes caching mechanisms to avoid reprocessing documents and embeddings when rerunning the ingestion.
 
 ### 4. Start Services
 
@@ -148,8 +176,8 @@ You can also interact with the RAG system programmatically via its API:
 - `POST /query` - Submit a question to the RAG system
 
   ```bash
-  curl -X POST "http://localhost:8000/query" \\
-       -H "Content-Type: application/json" \\
+  curl -X POST "http://localhost:8000/query" \
+       -H "Content-Type: application/json" \
        -d '{"query": "Your question here"}'
   ```
 
@@ -164,9 +192,13 @@ rag-workflow/
 │   ├── main.py             # Streamlit frontend
 │   ├── core/               # Configuration
 │   ├── db/                 # Database integration (Qdrant)
+│   ├── ingestion/          # Data ingestion utilities
+│   │   ├── cli.py          # Command-line interface for ingestion
+│   │   ├── ingest.py       # Core ingestion functions
+│   │   ├── web_loader/     # Web document loading utilities
+│   │   └── pdf_loader/     # PDF document loading utilities
 │   ├── models/             # Data models
 │   ├── utils/              # Utility functions
-│   ├── web_loader/         # Web document loading
 │   └── workflow/           # RAG workflow implementation
 ├── assets/                 # Images and documentation assets
 ├── ingest_data.ipynb       # Jupyter notebook for data ingestion
@@ -184,8 +216,9 @@ rag-workflow/
   - Toggle re-ranking functionality via `enable_reranker` in config.
   - Customize LLM and embedding models.
   - Adjust retrieval parameters (top_k, etc.).
-- **Web Data Ingestion**: Includes a Jupyter notebook (`ingest_data.ipynb`) for loading and processing web documents into the vector store.
+- **Multi-Format Data Ingestion**: Supports both web URLs and PDF documents through a unified ingestion pipeline.
 - **Hybrid Search**: Combines dense vector embeddings with sparse BM25 embeddings for improved search relevance using Reciprocal Rank Fusion (RRF).
+- **Command-Line Interface**: Provides a flexible CLI tool for data ingestion with support for custom URLs, PDF files, and configurable chunking parameters.
 
 ## Hybrid Search Implementation
 
@@ -224,6 +257,10 @@ The hybrid search is implemented in the `VectorDB.hybrid_search()` method in `ap
 5. **Hybrid Search Issues**:
    - **Poor Search Results**: If search results are not relevant, try adjusting the `qdrant_search_top_k` parameter in your configuration.
    - **Missing Sparse Embeddings**: Ensure that the `fastembed` library is properly installed and that the BM25 model is available.
+
+6. **PDF Ingestion Issues**:
+   - **File Not Found**: Verify that the PDF file paths are correct and accessible.
+   - **Text Extraction Problems**: Some PDFs with complex layouts or scanned images may not extract text properly.
 
 ### Logs
 
