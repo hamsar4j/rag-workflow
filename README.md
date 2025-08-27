@@ -73,7 +73,7 @@ uv sync
    JINA_API_KEY=your_jina_api_key
    ```
 
-3. Update configuration in `app/core/config.py` if needed:
+3. Update configuration in `src/app/core/config.py` if needed:
 
    ```python
    # Collection name in Qdrant
@@ -87,13 +87,10 @@ uv sync
 ### 3. Ingest Data
 
 Before querying, you need to ingest data into the vector store. You can do this using the command-line ingestion tool.
-
-#### Using the Command-Line Tool (Recommended)
-
-The new ingestion tool supports both web URLs and PDF files. Since you're using `uv` for dependency management, you can run the tool directly with `uv run`:
+The ingestion tool supports both web URLs and PDF files. Since you're using `uv` for dependency management, you can run the tool directly with `uv run`:
 
 ```bash
-# Ingest default URLs (from app/ingestion/web_loader/bs_utils.py)
+# Ingest default URLs (from src/app/ingestion/web_loader/bs_utils.py)
 uv run python -m app.ingestion.cli
 
 # Ingest specific URLs
@@ -111,17 +108,6 @@ uv run python -m app.ingestion.cli --chunk-size 1000 --overlap 200
 # Specify cache directory
 uv run python -m app.ingestion.cli --cache-dir "/path/to/cache"
 ```
-
-#### Using the Jupyter Notebook
-
-1. Ensure the Qdrant service is running (`docker-compose up -d`).
-2. Open the `ingest_data.ipynb` notebook.
-3. Run the cells in the notebook sequentially. This will:
-   - Create the Qdrant collection.
-   - Load web documents from predefined URLs.
-   - Split the documents into chunks.
-   - Generate embeddings for the chunks.
-   - Store the documents and their embeddings in Qdrant.
 
 #### Data Ingestion Process Details
 
@@ -146,13 +132,13 @@ The ingestion process includes caching mechanisms to avoid reprocessing document
 1. Run the FastAPI backend server:
 
    ```bash
-   fastapi run app/api.py
+   fastapi run src/app/api.py
    ```
 
 2. In a new terminal, run the Streamlit frontend:
 
    ```bash
-   streamlit run app/main.py
+   streamlit run src/app/main.py
    ```
 
 ## Usage
@@ -187,25 +173,27 @@ You can also interact with the RAG system programmatically via its API:
 
 ```
 rag-workflow/
-├── app/
-│   ├── api.py              # FastAPI server
-│   ├── main.py             # Streamlit frontend
-│   ├── core/               # Configuration
-│   ├── db/                 # Database integration (Qdrant)
-│   ├── ingestion/          # Data ingestion utilities
-│   │   ├── cli.py          # Command-line interface for ingestion
-│   │   ├── ingest.py       # Core ingestion functions
-│   │   ├── web_loader/     # Web document loading utilities
-│   │   └── pdf_loader/     # PDF document loading utilities
-│   ├── models/             # Data models
-│   ├── utils/              # Utility functions
-│   └── workflow/           # RAG workflow implementation
-├── assets/                 # Images and documentation assets
-├── ingest_data.ipynb       # Jupyter notebook for data ingestion
-├── .env.example            # Environment variable template
-├── docker-compose.yaml     # Qdrant service configuration
-├── pyproject.toml          # Project dependencies
-└── README.md               # This file
+├── src/
+│   ├── app/
+│   │   ├── api.py              # FastAPI server
+│   │   ├── main.py             # Streamlit frontend
+│   │   ├── core/               # Configuration
+│   │   ├── db/                 # Database integration (Qdrant)
+│   │   ├── ingestion/          # Data ingestion utilities
+│   │   │   ├── cli.py          # Command-line interface for ingestion
+│   │   │   ├── ingest.py       # Core ingestion functions
+│   │   │   ├── web_loader/     # Web document loading utilities
+│   │   │   └── pdf_loader/     # PDF document loading utilities
+│   │   ├── models/             # Data models
+│   │   ├── utils/              # Utility functions
+│   │   └── workflow/           # RAG workflow implementation
+├── assets/                     # Images and documentation assets
+├── notebooks/                  # Jupyter notebooks
+│   └── ingest_data.ipynb       # Jupyter notebook for data ingestion
+├── .env.example                # Environment variable template
+├── docker-compose.yaml         # Qdrant service configuration
+├── pyproject.toml              # Project dependencies
+└── README.md                   # This file
 ```
 
 ## Key Features
@@ -230,7 +218,7 @@ This project implements a hybrid search approach that combines the strengths of 
 
 3. **Reciprocal Rank Fusion (RRF)**: Combines the results from both search methods using RRF to produce a final ranking that leverages the strengths of both approaches.
 
-The hybrid search is implemented in the `VectorDB.hybrid_search()` method in `app/db/vector_db.py`. During the data ingestion process, both dense and sparse embeddings are generated for each document chunk and stored in Qdrant. During query time, both types of embeddings are generated for the query, and Qdrant performs the hybrid search using RRF fusion.
+The hybrid search is implemented in the `VectorDB.hybrid_search()` method in `src/app/db/vector_db.py`. During the data ingestion process, both dense and sparse embeddings are generated for each document chunk and stored in Qdrant. During query time, both types of embeddings are generated for the query, and Qdrant performs the hybrid search using RRF fusion.
 
 ## Troubleshooting
 
