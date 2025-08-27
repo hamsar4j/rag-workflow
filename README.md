@@ -15,7 +15,8 @@ The application follows a modular architecture with the following components:
 3. **Workflow Engine**: LangGraph-powered RAG pipeline with multiple stages
 4. **Vector Store**: Qdrant for efficient similarity search
 5. **AI Models**:
-   - Embeddings: Alibaba-NLP/gte-modernbert-base via Together AI
+   - Dense Embeddings: Alibaba-NLP/gte-modernbert-base via Together AI
+   - Sparse Embeddings: Qdrant/bm25
    - Generation: openai/gpt-oss-20b via Together AI
    - Re-ranking: jina-reranker-v1-tiny-en via Jina AI (optional)
 
