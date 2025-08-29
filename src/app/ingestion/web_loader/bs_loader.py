@@ -8,11 +8,17 @@ logger = logging.getLogger(__name__)
 def load_web_docs(urls: list[str]) -> list[tuple[str, str]]:
     """Load content from a list of URLs."""
 
+    if not urls:
+        logger.warning("No URLs provided for scraping.")
+        return []
+
     docs = []
+
     for url in urls:
         logger.info(f"Scraping URL: {url}")
         content = scrape_url(url)
         docs.append((content, url))
+
     return docs
 
 

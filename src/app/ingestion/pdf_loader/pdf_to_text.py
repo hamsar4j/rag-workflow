@@ -1,4 +1,7 @@
 import pymupdf
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def extract_text_from_pdf(pdf_path: str) -> str:
@@ -9,6 +12,15 @@ def extract_text_from_pdf(pdf_path: str) -> str:
         for page in doc:  # iterate the document pages
             text += page.get_text()  # get plain text (is in UTF-8)
         return text
+    except FileNotFoundError:
+        error_msg = f"PDF file not found: {pdf_path}"
+        logger.error(error_msg)
+        raise
+    except pymupdf.FileDataError:
+        error_msg = f"Corrupted PDF file: {pdf_path}"
+        logger.error(error_msg)
+        raise
     except Exception as e:
-        print(f"Error extracting text from PDF {pdf_path}: {str(e)}")
-        return ""
+        error_msg = f"Error extracting text from PDF {pdf_path}: {str(e)}"
+        logger.error(error_msg)
+        raise
