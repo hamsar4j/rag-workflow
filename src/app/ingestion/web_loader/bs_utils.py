@@ -2,15 +2,13 @@ urls = [
     "https://www.sutd.edu.sg/",
     "https://www.sutd.edu.sg/education",
     "https://www.sutd.edu.sg/education/undergraduate",
-    "https://www.sutd.edu.sg/education/undergraduate/majors/"
+    "https://www.sutd.edu.sg/education/undergraduate/majors/",
     "https://www.sutd.edu.sg/education/undergraduate/freshmore-subjects/",
     "https://www.sutd.edu.sg/education/undergraduate/capstone/overview/",
     "https://www.sutd.edu.sg/education/undergraduate/minors/",
     "https://www.sutd.edu.sg/education/undergraduate/specialisation-tracks/",
     "https://www.sutd.edu.sg/education/undergraduate/special-programmes/",
     "https://www.sutd.edu.sg/education/undergraduate/sectors/",
-    "https://www.sutd.edu.sg/education/graduate/masters",
-    "https://www.sutd.edu.sg/admissions/academy/",
     "https://www.sutd.edu.sg/education/accreditation",
     "https://www.sutd.edu.sg/education/undergraduate/courses",
     "https://www.sutd.edu.sg/asd",
@@ -73,5 +71,4 @@ urls = [
     "https://www.sutd.edu.sg/about/careers",
     "https://www.sutd.edu.sg/about/partnering-with-sutd",
     "https://www.sutd.edu.sg/programme-listing/sutd-phd-programme/application/",
-    "https://www.sutd.edu.sg/faq/what-is-the-minimum-cap-score-for-admissions",
 ]

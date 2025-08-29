@@ -1,5 +1,6 @@
 import pymupdf
 import logging
+from app.utils.progress import progress_bar
 
 logger = logging.getLogger(__name__)
 
@@ -9,8 +10,14 @@ def extract_text_from_pdf(pdf_path: str) -> str:
     try:
         doc = pymupdf.open(pdf_path)  # open a document
         text = ""
-        for page in doc:  # iterate the document pages
-            text += page.get_text()  # get plain text (is in UTF-8)
+
+        with progress_bar("Processing PDF pages...") as progress:
+            task = progress.add_task("Processing PDF pages...", total=len(doc))
+
+            for page in doc:  # iterate the document pages
+                text += page.get_text()  # get plain text (is in UTF-8)
+                progress.update(task, advance=1)
+
         return text
     except FileNotFoundError:
         error_msg = f"PDF file not found: {pdf_path}"

@@ -11,6 +11,7 @@ from app.ingestion.web_loader.bs_utils import urls as default_urls
 
 
 def main():
+    """Ingest documents into the vector database."""
     parser = argparse.ArgumentParser(
         description="Ingest documents into the vector database."
     )
@@ -21,11 +22,6 @@ def main():
     )
     parser.add_argument(
         "--overlap", type=int, default=100, help="Overlap between chunks"
-    )
-    parser.add_argument(
-        "--cache-dir",
-        default=".cache",
-        help="Directory for caching documents and embeddings",
     )
 
     args = parser.parse_args()

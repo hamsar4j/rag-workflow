@@ -2095,6 +2095,7 @@ dependencies = [
     { name = "pymupdf" },
     { name = "python-dotenv" },
     { name = "qdrant-client" },
+    { name = "rich" },
     { name = "streamlit" },
     { name = "unstructured" },
 ]
@@ -2111,6 +2112,7 @@ requires-dist = [
     { name = "pymupdf", specifier = ">=1.26.4" },
     { name = "python-dotenv", specifier = ">=1.1.0" },
     { name = "qdrant-client", specifier = ">=1.13.3" },
+    { name = "rich", specifier = ">=13.7.0" },
     { name = "streamlit", specifier = ">=1.44.1" },
     { name = "unstructured", specifier = ">=0.17.2" },
 ]

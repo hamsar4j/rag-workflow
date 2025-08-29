@@ -11,6 +11,7 @@ from app.core.config import settings as config
 from app.db.vector_db import VectorDB
 from app.models.models import Document
 from app.utils.utils import split_docs
+from app.utils.progress import progress_bar
 from app.ingestion.web_loader.bs_loader import load_web_docs
 from fastembed import SparseTextEmbedding
 
@@ -49,22 +50,24 @@ def generate_embeddings(chunks: List[Document]) -> Tuple[List[np.ndarray], List]
     dense_embeddings = []
     sparse_embeddings = []
 
-    for i, chunk in enumerate(chunks):
-        try:
-            dense_embedding, sparse_embedding = _get_embedding_with_retry(
-                vector_db, sparse_model, chunk.text
-            )
-            dense_embeddings.append(dense_embedding)
-            sparse_embeddings.append(sparse_embedding)
+    with progress_bar("Generating embeddings...") as progress:
+        task = progress.add_task("Generating embeddings...", total=len(chunks))
 
-            if i % 100 == 0:
-                print(f"Processed {i}/{len(chunks)} chunks")
+        for i, chunk in enumerate(chunks):
+            try:
+                dense_embedding, sparse_embedding = _get_embedding_with_retry(
+                    vector_db, sparse_model, chunk.text
+                )
+                dense_embeddings.append(dense_embedding)
+                sparse_embeddings.append(sparse_embedding)
 
-        except Exception as e:
-            print(f"Failed after retries on chunk {i}: {str(e)}")
-            # Append zero embeddings as fallback
-            dense_embeddings.append(np.zeros(config.embeddings_dim))
-            sparse_embeddings.append(None)
+                progress.update(task, advance=1)
+
+            except Exception as e:
+                print(f"Failed after retries on chunk {i}: {str(e)}")
+                # Append zero embeddings as fallback
+                dense_embeddings.append(np.zeros(config.embeddings_dim))
+                sparse_embeddings.append(None)
 
     return dense_embeddings, sparse_embeddings
 

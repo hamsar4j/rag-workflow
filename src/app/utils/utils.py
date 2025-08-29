@@ -1,6 +1,7 @@
 from app.models.models import Document
 import logging
 from typing import Optional
+from app.utils.progress import progress_bar
 
 logger = logging.getLogger(__name__)
 
@@ -52,10 +53,15 @@ def split_docs(
 
     all_chunks = []
 
-    for text, url in docs:
-        metadata = {"source": url}
-        for chunk in recursive_split(str(text), chunk_size, overlap):
-            all_chunks.append(Document(text=chunk, metadata=metadata))
+    with progress_bar("Splitting documents...") as progress:
+        task = progress.add_task("Splitting documents...", total=len(docs))
+
+        for text, url in docs:
+            metadata = {"source": url}
+            for chunk in recursive_split(str(text), chunk_size, overlap):
+                all_chunks.append(Document(text=chunk, metadata=metadata))
+            progress.update(task, advance=1)
+
     logging.info(f"Split documents into {len(all_chunks)} chunks.")
 
     return all_chunks
