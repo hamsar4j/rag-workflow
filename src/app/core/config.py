@@ -28,6 +28,10 @@ class Settings(BaseSettings):
     embeddings_model: str = "Alibaba-NLP/gte-modernbert-base"
     embeddings_dim: int = 768
 
+    # ingestion settings
+    chunk_size: int = int(os.getenv("CHUNK_SIZE", "500"))
+    chunk_overlap: int = int(os.getenv("CHUNK_OVERLAP", "100"))
+
     # reranker
     reranker_base_url: str = "https://api.jina.ai/v1/rerank"
     reranker_api_key: str = os.getenv("JINA_API_KEY", "")

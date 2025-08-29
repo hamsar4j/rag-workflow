@@ -8,6 +8,7 @@ from app.ingestion.ingest import (
 )
 from app.ingestion.pdf_loader.pdf_to_text import extract_text_from_pdf
 from app.ingestion.web_loader.bs_utils import urls as default_urls
+from app.core.config import settings
 
 
 def main():
@@ -18,10 +19,16 @@ def main():
     parser.add_argument("--urls", nargs="*", help="List of URLs to ingest")
     parser.add_argument("--pdfs", nargs="*", help="List of PDF file paths to ingest")
     parser.add_argument(
-        "--chunk-size", type=int, default=500, help="Chunk size for document splitting"
+        "--chunk-size",
+        type=int,
+        default=settings.chunk_size,
+        help="Chunk size for document splitting",
     )
     parser.add_argument(
-        "--overlap", type=int, default=100, help="Overlap between chunks"
+        "--overlap",
+        type=int,
+        default=settings.chunk_overlap,
+        help="Overlap between chunks",
     )
 
     args = parser.parse_args()

@@ -22,7 +22,7 @@ def load_documents(urls: List[str]) -> List[Tuple[str, str]]:
 
 
 def split_documents(
-    docs: List[Tuple[str, str]], chunk_size: int = 500, overlap: int = 100
+    docs: List[Tuple[str, str]], chunk_size: int, overlap: int
 ) -> List[Document]:
     """Split documents into chunks."""
     return split_docs(docs, chunk_size, overlap)
