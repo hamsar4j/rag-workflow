@@ -75,13 +75,13 @@ def generate_embeddings(chunks: List[Document]) -> Tuple[List[np.ndarray], List]
 def store_documents(
     chunks: List[Document], dense_embeddings: List[np.ndarray], sparse_embeddings: List
 ):
-    """Store documents and their embeddings in the vector database."""
+    """Store the embeddings in the vector database."""
     vector_db = VectorDB(config)
     # Convert list of numpy arrays to numpy array for compatibility
     dense_embeddings_array = np.array(dense_embeddings)
 
-    with progress_bar("Upserting documents...") as progress:
-        task = progress.add_task("Upserting documents...", total=1)
+    with progress_bar("Upserting embeddings...") as progress:
+        task = progress.add_task("Upserting embeddings...", total=1)
         vector_db.add_documents(
             docs=chunks,
             dense_embeddings=dense_embeddings_array,
