@@ -20,7 +20,40 @@ class VectorDB:
             api_key=config.embeddings_api_key, base_url=config.embeddings_base_url
         )
         self.embeddings_model = config.embeddings_model
+        self.embeddings_dim = config.embeddings_dim
         self.sparse_model = SparseTextEmbedding("Qdrant/bm25")
+
+    def collection_exists(self) -> bool:
+        """Check if the Qdrant collection exists."""
+
+        try:
+            self.client.get_collection(self.collection_name)
+            return True
+        except Exception:
+            return False
+
+    def create_collection(self) -> bool:
+        """Create a new collection with the configured settings."""
+
+        try:
+            logger.info(f"Creating collection '{self.collection_name}'")
+            self.client.create_collection(
+                collection_name=self.collection_name,
+                vectors_config={
+                    "dense": models.VectorParams(
+                        size=self.embeddings_dim, distance=models.Distance.COSINE
+                    )
+                },
+                sparse_vectors_config={
+                    "bm25": models.SparseVectorParams(modifier=models.Modifier.IDF)
+                },
+            )
+            logger.info(f"Successfully created collection '{self.collection_name}'")
+            return True
+
+        except Exception as e:
+            logger.error(f"Failed to create collection '{self.collection_name}': {e}")
+            return False
 
     def get_embeddings(self, doc: str) -> np.ndarray:
         """Generate dense embeddings for a document using the configured embeddings API."""
@@ -46,6 +79,10 @@ class VectorDB:
             sparse_embeddings: Optional list of sparse embeddings for the documents
             batch_size: Number of documents to process in each batch
         """
+
+        if not self.collection_exists():
+            self.create_collection()
+
         for i in range(0, len(docs), batch_size):
             batch_docs = docs[i : i + batch_size]
             batch_embeddings = dense_embeddings[i : i + batch_size]

@@ -79,8 +79,12 @@ def store_documents(
     vector_db = VectorDB(config)
     # Convert list of numpy arrays to numpy array for compatibility
     dense_embeddings_array = np.array(dense_embeddings)
-    vector_db.add_documents(
-        docs=chunks,
-        dense_embeddings=dense_embeddings_array,
-        sparse_embeddings=sparse_embeddings,
-    )
+
+    with progress_bar("Upserting documents...") as progress:
+        task = progress.add_task("Upserting documents...", total=1)
+        vector_db.add_documents(
+            docs=chunks,
+            dense_embeddings=dense_embeddings_array,
+            sparse_embeddings=sparse_embeddings,
+        )
+        progress.update(task, advance=1)
