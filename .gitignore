@@ -11,3 +11,5 @@ dense_embeddings.pkl
 
 # Build
 src/rag_workflow.egg-info/
+
+TODO.md

@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 import json
-from core.config import settings
+from app.core.config import settings
 
 backend_url = settings.backend_url
 
@@ -31,8 +31,8 @@ def query_api(query: str, api_url: str = backend_url) -> str:
             return "Error: Bad request. Please check your input and try again."
         else:
             return f"Error: HTTP {response.status_code} - {e}"
-    except (KeyError, json.JSONDecodeError) as e:
-        return f"Error: Invalid response from the backend. The service may be experiencing issues."
+    except (KeyError, json.JSONDecodeError):
+        return "Error: Invalid response from the backend. The service may be experiencing issues."
     except Exception as e:
         return f"Error: An unexpected error occurred: {str(e)}"
 

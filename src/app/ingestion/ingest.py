@@ -77,8 +77,10 @@ def store_documents(
 ):
     """Store documents and their embeddings in the vector database."""
     vector_db = VectorDB(config)
+    # Convert list of numpy arrays to numpy array for compatibility
+    dense_embeddings_array = np.array(dense_embeddings)
     vector_db.add_documents(
         docs=chunks,
-        dense_embeddings=dense_embeddings,
+        dense_embeddings=dense_embeddings_array,
         sparse_embeddings=sparse_embeddings,
     )
