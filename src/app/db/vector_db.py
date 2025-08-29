@@ -23,20 +23,23 @@ class VectorDB:
         self.embeddings_dim = config.embeddings_dim
         self.sparse_model = SparseTextEmbedding("Qdrant/bm25")
 
-    def collection_exists(self) -> bool:
-        """Check if the Qdrant collection exists."""
+        self._ensure_collection_exists()
 
+    def collection_exists(self) -> bool:
+        """Check if collection exists."""
         try:
             self.client.get_collection(self.collection_name)
             return True
         except Exception:
             return False
 
-    def create_collection(self) -> bool:
-        """Create a new collection with the configured settings."""
+    def _ensure_collection_exists(self):
+        """Ensure the collection exists, creating it if necessary."""
+        if self.collection_exists():
+            logger.info(f"Collection '{self.collection_name}' already exists")
+            return
 
         try:
-            logger.info(f"Creating collection '{self.collection_name}'")
             self.client.create_collection(
                 collection_name=self.collection_name,
                 vectors_config={
@@ -49,11 +52,9 @@ class VectorDB:
                 },
             )
             logger.info(f"Successfully created collection '{self.collection_name}'")
-            return True
-
         except Exception as e:
             logger.error(f"Failed to create collection '{self.collection_name}': {e}")
-            return False
+            raise RuntimeError(f"Could not ensure collection exists: {e}")
 
     def get_embeddings(self, doc: str) -> np.ndarray:
         """Generate dense embeddings for a document using the configured embeddings API."""
@@ -79,9 +80,6 @@ class VectorDB:
             sparse_embeddings: Optional list of sparse embeddings for the documents
             batch_size: Number of documents to process in each batch
         """
-
-        if not self.collection_exists():
-            self.create_collection()
 
         for i in range(0, len(docs), batch_size):
             batch_docs = docs[i : i + batch_size]
