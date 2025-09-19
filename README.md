@@ -27,106 +27,59 @@ The application follows a modular architecture with the following components:
 - Docker and Docker Compose (for Qdrant vector database)
 - API keys for Together AI, Qdrant and optionally Jina AI
 
-## Setup
+## Quickstart
 
-### 1. Environment Setup
+1. **Install dependencies**
 
-Clone the repository and navigate to the project directory:
+   ```bash
+   git clone <repository-url>
+   cd rag-workflow
+   uv venv
+   source .venv/bin/activate
+   uv sync
+   ```
 
-```bash
-git clone <repository-url>
-cd rag-workflow
-```
-
-Create a virtual environment using uv:
-
-```bash
-uv venv
-source .venv/bin/activate
-```
-
-Install dependencies:
-
-```bash
-uv sync
-```
-
-### 2. Configuration
-
-1. Copy the example environment file:
+2. **Configure environment**
 
    ```bash
    cp .env.example .env
    ```
 
-2. Copy `.env.example` to `.env` and fill in the placeholders. The sample file documents every supported variable; the most important ones are:
+   Fill in the placeholders with your credentials. Key variables:
+   - `BACKEND_URL` (default `http://localhost:8000`)
+   - `QDRANT_URL` / `QDRANT_API_KEY`, plus optional overrides such as `QDRANT_COLLECTION_NAME` (`sutd`) and `QDRANT_SEARCH_TOP_K` (`10`)
+   - `LLM_API_KEY` with optional `LLM_BASE_URL` / `LLM_MODEL` (default `zai-org/GLM-4.5-Air-FP8`)
+   - `EMBEDDINGS_API_KEY` with optional `EMBEDDINGS_BASE_URL`, `EMBEDDINGS_MODEL` (default `intfloat/multilingual-e5-large-instruct`), and `EMBEDDINGS_DIM` (`1024`)
+   - `ENABLE_RERANKER` (`false` by default) plus `RERANKING_API_KEY` when enabling the Jina reranker
 
-   - **Backend**: `BACKEND_URL` (default `http://localhost:8000`).
-   - **Qdrant**: `QDRANT_URL`, `QDRANT_API_KEY`, optional overrides such as `QDRANT_COLLECTION_NAME` and `QDRANT_SEARCH_TOP_K` (default `sutd` and `10`).
-   - **LLM**: `LLM_API_KEY` plus optional `LLM_BASE_URL` and `LLM_MODEL` (default `zai-org/GLM-4.5-Air-FP8`).
-   - **Embeddings**: `EMBEDDINGS_API_KEY` plus optional `EMBEDDINGS_BASE_URL`, `EMBEDDINGS_MODEL` (default `intfloat/multilingual-e5-large-instruct`), and `EMBEDDINGS_DIM` (default `1024`).
-   - **Reranking (optional)**: `ENABLE_RERANKER` (`false` by default), `RERANKING_API_KEY`, and related model/base URL fields.
+   Review `src/app/core/config.py` if you need to adjust defaults beyond these variables.
 
-   Leave the default base URLs unless you proxy egress. Provide API keys for Qdrant and Together AI; add Jina credentials only if you enable reranking.
-
-3. Review `src/app/core/config.py` if you need to adjust defaults that are not set via environment variables. The settings class mirrors the environment options and provides the fallbacks noted above, including the `ENABLE_RERANKER` toggle.
-
-### 3. Ingest Data
-
-Before querying, you need to ingest data into the vector store. You can do this using the command-line ingestion tool.
-The ingestion tool supports both web URLs and PDF files. Since you're using `uv` for dependency management, you can run the tool directly with `uv run`:
-
-```bash
-# Ingest default URLs (from src/app/ingestion/web_loader/bs_utils.py)
-uv run python -m app.ingestion.cli
-
-# Ingest specific URLs
-uv run python -m app.ingestion.cli --urls "https://example.com/page1" "https://example.com/page2"
-
-# Ingest PDF files
-uv run python -m app.ingestion.cli --pdfs "path/to/document1.pdf" "path/to/document2.pdf"
-
-# Ingest both URLs and PDFs
-uv run python -m app.ingestion.cli --urls "https://example.com/page1" --pdfs "path/to/document.pdf"
-
-# Customize chunking parameters
-uv run python -m app.ingestion.cli --chunk-size 1000 --overlap 200
-
-# Specify cache directory
-uv run python -m app.ingestion.cli --cache-dir "/path/to/cache"
-```
-
-#### Data Ingestion Process Details
-
-The data ingestion process consists of several key steps:
-
-1. **Document Loading**:
-   - Web pages are scraped from URLs using BeautifulSoup. The content is extracted and cleaned.
-   - PDF documents are processed using PyMuPDF to extract text content.
-
-2. **Document Chunking**: Large documents are split into smaller chunks to improve retrieval precision. The chunking process uses a recursive approach that tries to split on paragraph breaks, line breaks, sentences, and words.
-
-3. **Embedding Generation**: For each chunk, both dense and sparse embeddings are generated:
-   - **Dense Embeddings**: Generated using the `intfloat/multilingual-e5-large-instruct` model via Together AI API
-   - **Sparse Embeddings**: Generated using the `Qdrant/bm25` model from the fastembed library
-
-4. **Storage**: Both embeddings along with the document text and metadata are stored in Qdrant, enabling hybrid search capabilities.
-
-The ingestion process includes caching mechanisms to avoid reprocessing documents and embeddings when rerunning the ingestion.
-
-### 4. Start Services
-
-1. Run the FastAPI backend server:
+3. **Ingest data** (first run)
 
    ```bash
-   fastapi run src/app/api.py
+   uv run python -m app.ingestion.cli
    ```
 
-2. In a new terminal, run the Streamlit frontend:
+   The CLI accepts flags such as `--urls`, `--pdfs`, `--chunk-size`, and `--overlap`; run with `--help` to see all options.
+
+4. **Run services**
 
    ```bash
-   streamlit run src/app/main.py
+   docker compose up -d           # start Qdrant
+   uv run fastapi run src/app/api.py
+   uv run streamlit run src/app/main.py
    ```
+
+   The Streamlit UI expects the backend to be reachable at the `BACKEND_URL` defined in your `.env`.
+
+## Ingestion Pipeline
+
+The ingestion CLI orchestrates four stages:
+
+- **Load sources**: Scrapes default URLs or user-provided URLs/PDFs.
+- **Chunk documents**: Splits text using recursive chunking with configurable size/overlap.
+- **Generate embeddings**: Creates dense vectors with `intfloat/multilingual-e5-large-instruct` and sparse BM25 vectors.
+- **Store in Qdrant**: Persists chunks, embeddings, and metadata; cached runs skip unchanged work.
 
 ## Usage
 
@@ -183,29 +136,13 @@ rag-workflow/
 └── README.md                   # This file
 ```
 
-## Key Features
+## Features
 
-- **Retrieval-Augmented Generation (RAG) Pipeline**: Combines semantic search with LLM generation for context-aware answers.
-- **Modular Architecture**: Built with FastAPI, Streamlit, LangGraph, and Qdrant for scalability and maintainability.
-- **Configurable Components**:
-  - Toggle re-ranking functionality via `enable_reranker` in config.
-  - Customize LLM and embedding models.
-  - Adjust retrieval parameters (top_k, etc.).
-- **Multi-Format Data Ingestion**: Supports both web URLs and PDF documents through a unified ingestion pipeline.
-- **Hybrid Search**: Combines dense vector embeddings with sparse BM25 embeddings for improved search relevance using Reciprocal Rank Fusion (RRF).
-- **Command-Line Interface**: Provides a flexible CLI tool for data ingestion with support for custom URLs, PDF files, and configurable chunking parameters.
-
-## Hybrid Search Implementation
-
-This project implements a hybrid search approach that combines the strengths of both dense and sparse retrieval methods:
-
-1. **Dense Vector Search**: Uses semantic embeddings generated by the `intfloat/multilingual-e5-large-instruct` model via Together AI to capture semantic similarity between the query and documents.
-
-2. **Sparse Vector Search (BM25)**: Uses the BM25 algorithm implemented with Qdrant's sparse vectors to capture exact term matching, which is particularly effective for keyword-based queries.
-
-3. **Reciprocal Rank Fusion (RRF)**: Combines the results from both search methods using RRF to produce a final ranking that leverages the strengths of both approaches.
-
-The hybrid search is implemented in the `VectorDB.hybrid_search()` method in `src/app/db/vector_db.py`. During the data ingestion process, both dense and sparse embeddings are generated for each document chunk and stored in Qdrant. During query time, both types of embeddings are generated for the query, and Qdrant performs the hybrid search using RRF fusion.
+- **LangGraph RAG pipeline** that fuses retrieval and generation for grounded responses.
+- **Streamlit + FastAPI surfaces** for conversational and programmatic access to the same workflow.
+- **Hybrid search** combining `intfloat/multilingual-e5-large-instruct` dense vectors with Qdrant BM25 sparse vectors via Reciprocal Rank Fusion (`src/app/db/vector_db.py`).
+- **Environment-driven configuration** covering models, retrieval parameters, and the optional Jina reranker switch.
+- **Flexible ingestion CLI** for URLs/PDFs with chunk controls and caching to avoid reprocessing.
 
 ## Troubleshooting
 
