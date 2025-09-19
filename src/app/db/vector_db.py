@@ -108,9 +108,13 @@ class VectorDB:
             points = []
             for j, (doc, embedding) in enumerate(zip(batch_docs, batch_embeddings)):
                 point_id = self._generate_point_id(doc)
+                payload = {"text": doc.text}
+                if doc.metadata:
+                    payload.update(doc.metadata)
+
                 point_data = {
                     "id": point_id,
-                    "payload": {"text": doc.text, "metadata": doc.metadata},
+                    "payload": payload,
                 }
 
                 # If sparse embeddings are provided, use hybrid vector format

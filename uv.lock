@@ -1278,11 +1278,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/f6/d5/4861816a95b2f6993f1360cfb605aacb015506ee2090433a71de9cca8477/langchain-0.3.27-py3-none-any.whl", hash = "sha256:7b20c4f338826acb148d885b20a73a16e410ede9ee4f19bb02011852d5f98798", size = 1018194 },
 ]
 
-[package.optional-dependencies]
-together = [
-    { name = "langchain-together" },
-]
-
 [[package]]
 name = "langchain-community"
 version = "0.3.29"
@@ -1348,21 +1343,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/11/43/dcda8fd25f0b19cb2835f2f6bb67f26ad58634f04ac2d8eae00526b0fa55/langchain_text_splitters-0.3.11.tar.gz", hash = "sha256:7a50a04ada9a133bbabb80731df7f6ddac51bc9f1b9cab7fa09304d71d38a6cc", size = 46458 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/58/0d/41a51b40d24ff0384ec4f7ab8dd3dcea8353c05c973836b5e289f1465d4f/langchain_text_splitters-0.3.11-py3-none-any.whl", hash = "sha256:cf079131166a487f1372c8ab5d0bfaa6c0a4291733d9c43a34a16ac9bcd6a393", size = 33845 },
-]
-
-[[package]]
-name = "langchain-together"
-version = "0.3.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "aiohttp" },
-    { name = "langchain-core" },
-    { name = "langchain-openai" },
-    { name = "requests" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/1a/67/b2f8a2ab856fe962905c3cdb2c96d531f6cf7ae74b55c6c0380b52f6c99d/langchain_together-0.3.1.tar.gz", hash = "sha256:123a3d6da11c3a32c6e7653f9b52a7793789ddba5a871a2392db0ee3d389be78", size = 10664 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/6a/94/69a4cae7c37a5619c610cc443ca8cdad5495438aed3f72fa936ed38cadf3/langchain_together-0.3.1-py3-none-any.whl", hash = "sha256:f6638c3a1db2732a3e62ed0fdfbac0653765f0e561e7082320952731846945b2", size = 12879 },
 ]
 
 [[package]]
@@ -2685,7 +2665,7 @@ dependencies = [
 
 [package.optional-dependencies]
 test = [
-    { name = "langchain", extra = ["together"] },
+    { name = "datasets" },
     { name = "langchain-community" },
     { name = "ragas" },
 ]
@@ -2693,11 +2673,11 @@ test = [
 [package.metadata]
 requires-dist = [
     { name = "beautifulsoup4", specifier = ">=4.13.3" },
+    { name = "datasets", marker = "extra == 'test'", specifier = ">=4.1.1" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.115.12" },
     { name = "fastembed", specifier = ">=0.7.1" },
     { name = "ipykernel", specifier = ">=6.29.5" },
     { name = "ipywidgets", specifier = ">=8.1.7" },
-    { name = "langchain", extras = ["together"], marker = "extra == 'test'", specifier = ">=0.3.27" },
     { name = "langchain-community", marker = "extra == 'test'", specifier = ">=0.3.29" },
     { name = "langgraph", specifier = ">=0.3.30" },
     { name = "openai", specifier = ">=1.74.0" },

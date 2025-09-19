@@ -112,7 +112,7 @@ You can also interact with the RAG system programmatically via its API:
 
 ## Project Structure
 
-```
+```md
 rag-workflow/
 ├── src/
 │   ├── app/
