@@ -37,6 +37,7 @@ The application follows a modular architecture with the following components:
    uv venv
    source .venv/bin/activate
    uv sync
+   uv pip install -e .
    ```
 
 2. **Configure environment**

@@ -5,6 +5,8 @@ import numpy as np
 import logging
 from openai import OpenAI
 from typing import Optional, Any
+import json
+import uuid
 
 logger = logging.getLogger(__name__)
 
@@ -64,6 +66,19 @@ class VectorDB:
         )
         return np.array(response.data[0].embedding)
 
+    def _generate_point_id(self, doc: Document) -> str:
+        """Derive a stable identifier for a document chunk."""
+
+        metadata = doc.metadata or {}
+        try:
+            metadata_blob = json.dumps(metadata, sort_keys=True, default=str)
+        except TypeError:
+            metadata_blob = str(metadata)
+
+        raw_value = f"{metadata_blob}::{doc.text}"
+        stable_uuid = uuid.uuid5(uuid.NAMESPACE_URL, raw_value)
+        return str(stable_uuid)
+
     def add_documents(
         self,
         docs: list[Document],
@@ -92,8 +107,9 @@ class VectorDB:
 
             points = []
             for j, (doc, embedding) in enumerate(zip(batch_docs, batch_embeddings)):
+                point_id = self._generate_point_id(doc)
                 point_data = {
-                    "id": i + j,  # offset from overall start index
+                    "id": point_id,
                     "payload": {"text": doc.text, "metadata": doc.metadata},
                 }
 
