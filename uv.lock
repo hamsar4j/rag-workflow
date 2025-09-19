@@ -1346,6 +1346,21 @@ wheels = [
 ]
 
 [[package]]
+name = "langchain-together"
+version = "0.3.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "aiohttp" },
+    { name = "langchain-core" },
+    { name = "langchain-openai" },
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/1a/67/b2f8a2ab856fe962905c3cdb2c96d531f6cf7ae74b55c6c0380b52f6c99d/langchain_together-0.3.1.tar.gz", hash = "sha256:123a3d6da11c3a32c6e7653f9b52a7793789ddba5a871a2392db0ee3d389be78", size = 10664 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/6a/94/69a4cae7c37a5619c610cc443ca8cdad5495438aed3f72fa936ed38cadf3/langchain_together-0.3.1-py3-none-any.whl", hash = "sha256:f6638c3a1db2732a3e62ed0fdfbac0653765f0e561e7082320952731846945b2", size = 12879 },
+]
+
+[[package]]
 name = "langdetect"
 version = "1.0.9"
 source = { registry = "https://pypi.org/simple" }
@@ -2667,6 +2682,7 @@ dependencies = [
 test = [
     { name = "datasets" },
     { name = "langchain-community" },
+    { name = "langchain-together" },
     { name = "ragas" },
 ]
 
@@ -2679,6 +2695,7 @@ requires-dist = [
     { name = "ipykernel", specifier = ">=6.29.5" },
     { name = "ipywidgets", specifier = ">=8.1.7" },
     { name = "langchain-community", marker = "extra == 'test'", specifier = ">=0.3.29" },
+    { name = "langchain-together", marker = "extra == 'test'", specifier = ">=0.3.1" },
     { name = "langgraph", specifier = ">=0.3.30" },
     { name = "openai", specifier = ">=1.74.0" },
     { name = "pydantic-settings", specifier = ">=2.8.1" },
