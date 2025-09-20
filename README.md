@@ -17,7 +17,7 @@ The application follows a modular architecture with the following components:
 5. **AI Models**:
    - Dense Embeddings: intfloat/multilingual-e5-large-instruct via Together AI
    - Sparse Embeddings: Qdrant/bm25
-   - Generation: zai-org/GLM-4.5-Air-FP8 via Together AI
+   - Generation: moonshotai/Kimi-K2-Instruct-0905 via Together AI
    - Re-ranking: jina-reranker-v1-tiny-en via Jina AI (optional)
 
 ## Prerequisites
@@ -49,7 +49,7 @@ The application follows a modular architecture with the following components:
    Fill in the placeholders with your credentials. Key variables:
    - `BACKEND_URL` (default `http://localhost:8000`)
    - `QDRANT_URL` / `QDRANT_API_KEY`, plus optional overrides such as `QDRANT_COLLECTION_NAME` (`sutd`) and `QDRANT_SEARCH_TOP_K` (`10`)
-   - `LLM_API_KEY` with optional `LLM_BASE_URL` / `LLM_MODEL` (default `zai-org/GLM-4.5-Air-FP8`)
+   - `LLM_API_KEY` with optional `LLM_BASE_URL` / `LLM_MODEL` (default `moonshotai/Kimi-K2-Instruct-0905`)
    - `EMBEDDINGS_API_KEY` with optional `EMBEDDINGS_BASE_URL`, `EMBEDDINGS_MODEL` (default `intfloat/multilingual-e5-large-instruct`), and `EMBEDDINGS_DIM` (`1024`)
    - `ENABLE_RERANKER` (`false` by default) plus `RERANKING_API_KEY` when enabling the Jina reranker
 
@@ -130,7 +130,8 @@ rag-workflow/
 │   │   └── workflow/           # RAG workflow implementation
 ├── assets/                     # Images and documentation assets
 ├── notebooks/                  # Jupyter notebooks
-│   └── ingest_data.ipynb       # Jupyter notebook for data ingestion
+│   ├── ingest_data.ipynb       # Jupyter notebook for data ingestion
+│   └── ragas_eval.ipynb        # RAGAS-based evaluation walkthrough
 ├── .env.example                # Environment variable template
 ├── docker-compose.yaml         # Qdrant service configuration
 ├── pyproject.toml              # Project dependencies
@@ -144,6 +145,10 @@ rag-workflow/
 - **Hybrid search** combining `intfloat/multilingual-e5-large-instruct` dense vectors with Qdrant BM25 sparse vectors via Reciprocal Rank Fusion (`src/app/db/vector_db.py`).
 - **Environment-driven configuration** covering models, retrieval parameters, and the optional Jina reranker switch.
 - **Flexible ingestion CLI** for URLs/PDFs with chunk controls and caching to avoid reprocessing.
+
+## Evaluation
+
+The `notebooks/ragas_eval.ipynb` notebook walks through running RAGAS evaluations against recorded question/answer pairs (see `notebooks/evaluation_records.json`). Use it to track retrieval and generation quality as you iterate on the workflow.
 
 ## Troubleshooting
 
