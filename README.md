@@ -32,10 +32,6 @@ The application follows a modular architecture with the following components:
 1. **Install dependencies**
 
    ```bash
-   git clone <repository-url>
-   cd rag-workflow
-   uv venv
-   source .venv/bin/activate
    uv sync
    uv pip install -e .
    ```
@@ -66,7 +62,7 @@ The application follows a modular architecture with the following components:
 4. **Run services**
 
    ```bash
-   docker compose up -d           # start Qdrant
+   docker compose up -d
    uv run fastapi run src/app/api.py
    uv run streamlit run src/app/main.py
    ```
@@ -149,43 +145,6 @@ rag-workflow/
 ## Evaluation
 
 The `notebooks/ragas_eval.ipynb` notebook walks through running RAGAS evaluations against recorded question/answer pairs (see `notebooks/evaluation_records.json`). Use it to track retrieval and generation quality as you iterate on the workflow.
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Connection errors to Qdrant**:
-   - Ensure Docker is running
-   - Check that Qdrant service is up: `docker-compose ps`
-   - Verify QDRANT_URL in your .env file
-
-2. **API key issues**:
-   - Confirm all required API keys are set in .env
-   - Check that your API keys have appropriate permissions
-
-3. **Slow responses**:
-   - First requests may be slower due to model loading
-   - Consider enabling re-ranking for better quality results
-
-4. **Embedding Generation Issues**:
-   - **Rate Limiting**: The ingestion process includes rate limiting to comply with API quotas. If you're getting rate limit errors, consider adjusting the rate limiting parameters.
-   - **Model Loading**: First-time embedding generation may be slow as models are loaded. Subsequent requests should be faster.
-   - **Invalid Embeddings**: If embeddings are not being generated correctly, check that your Together AI API key is valid and has access to the configured embedding model.
-
-5. **Hybrid Search Issues**:
-   - **Poor Search Results**: If search results are not relevant, try adjusting the `qdrant_search_top_k` parameter in your configuration.
-   - **Missing Sparse Embeddings**: Ensure that the `fastembed` library is properly installed and that the BM25 model is available.
-
-6. **PDF Ingestion Issues**:
-   - **File Not Found**: Verify that the PDF file paths are correct and accessible.
-   - **Text Extraction Problems**: Some PDFs with complex layouts or scanned images may not extract text properly.
-
-### Logs
-
-Check logs for debugging information:
-
-- FastAPI logs will show in the terminal where you started the server
-- Streamlit logs will show in the terminal where you started the UI
 
 ## License
 
