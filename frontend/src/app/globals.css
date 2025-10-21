@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f8f5ee;
+  --foreground: #1f1d2c;
+  --primary: #4254ff;
+  --primary-shadow: rgba(66, 84, 255, 0.22);
+  --primary-soft: rgba(66, 84, 255, 0.08);
+  --accent: #ffb45f;
+  --panel: #ffffff;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-plex-mono), "IBM Plex Mono", ui-monospace,
+    SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    monospace;
+  letter-spacing: 0.01em;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  letter-spacing: inherit;
+}
+
+::selection {
+  background: rgba(66, 84, 255, 0.2);
+}
+
+.bg-lab {
+  background-image: linear-gradient(
+      90deg,
+      rgba(66, 84, 255, 0.12) 1px,
+      transparent 1px
+    ),
+    linear-gradient(0deg, rgba(66, 84, 255, 0.12) 1px, transparent 1px);
+  background-size: 60px 60px;
+  background-position: -10px 0;
+  background-color: #fefbf4;
+}
+
+.tile-plate {
+  border: 2px solid rgba(72, 54, 20, 0.4);
+  background: #ffe7bd;
+  box-shadow: 0 6px 0 rgba(162, 103, 32, 0.35);
+}
+
+.avatar-token {
+  background: #1f1d2c;
+  border: 2px solid #fefbf4;
+  color: #fefbf4;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
+}
+
+.panel-border {
+  border: 2px solid var(--primary);
+  box-shadow: 0 8px 0 var(--primary-shadow);
+}
+
+.panel-body {
+  background: var(--panel);
+  border-radius: 1.75rem;
+}
+
+.input-field {
+  background: #ffffff;
+  border: 2px solid rgba(66, 84, 255, 0.35);
+  border-radius: 9999px;
+  padding: 0.85rem 1.6rem;
+  box-shadow: 0 4px 0 var(--primary-shadow);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 6px 0 var(--primary-shadow);
+}
+
+.send-button {
+  border-radius: 9999px;
+  background: var(--primary);
+  color: white;
+  padding: 0.85rem 2.4rem;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.18);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.send-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
+}
+
+.send-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
+}
