@@ -17,7 +17,6 @@ dependencies = [
     "python-dotenv>=1.1.1",
     "qdrant-client>=1.15.1",
     "rich>=14.2.0",
-    "streamlit>=1.50.0",
     "unstructured[md]>=0.18.15",
 ]
 

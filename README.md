@@ -10,7 +10,7 @@ This project implements a Retrieval-Augmented Generation (RAG) workflow for buil
 
 The application follows a modular architecture with the following components:
 
-1. **Frontend**: Streamlit-based chat interface for user interaction
+1. **Frontend**: Next.js control-room interface (`frontend/`) for live chat supervision
 2. **Backend**: FastAPI server exposing REST endpoints
 3. **Workflow Engine**: LangGraph-powered RAG pipeline with multiple stages
 4. **Vector Store**: Qdrant for efficient similarity search
@@ -64,10 +64,17 @@ The application follows a modular architecture with the following components:
    ```bash
    docker compose up -d
    uv run fastapi run src/app/api.py
-   uv run streamlit run src/app/main.py
    ```
 
-   The Streamlit UI expects the backend to be reachable at the `BACKEND_URL` defined in your `.env`.
+   In a separate terminal, start the frontend:
+
+   ```bash
+   cd frontend
+   pnpm install
+   pnpm dev
+   ```
+
+   The FastAPI server listens on `http://localhost:8000`. The Next.js app proxies requests to `/query`; export `NEXT_PUBLIC_RAG_API` if the backend runs elsewhere.
 
 ## Ingestion Pipeline
 
@@ -80,11 +87,11 @@ The ingestion CLI orchestrates four stages:
 
 ## Usage
 
-1. After starting all services, open your browser to:
-   - Streamlit UI: <http://localhost:8501>
+1. With FastAPI and the Next.js dev server running, open:
+   - Control Room UI: <http://localhost:3000>
    - FastAPI docs: <http://localhost:8000/docs>
 
-2. In the Streamlit chat interface, ask questions related to your knowledge base.
+2. In the Control Room chat, issue questions against your knowledge base. The UI forwards each prompt to `/query` and renders the grounded answer.
 
 3. The system will:
    - Analyze your query
@@ -113,7 +120,6 @@ rag-workflow/
 ├── src/
 │   ├── app/
 │   │   ├── api.py              # FastAPI server
-│   │   ├── main.py             # Streamlit frontend
 │   │   ├── core/               # Configuration
 │   │   ├── db/                 # Database integration (Qdrant)
 │   │   ├── ingestion/          # Data ingestion utilities
@@ -124,6 +130,7 @@ rag-workflow/
 │   │   ├── models/             # Data models
 │   │   ├── utils/              # Utility functions
 │   │   └── workflow/           # RAG workflow implementation
+├── frontend/                   # Next.js control-room frontend
 ├── assets/                     # Images and documentation assets
 ├── notebooks/                  # Jupyter notebooks
 │   ├── ingest_data.ipynb       # Jupyter notebook for data ingestion
@@ -137,7 +144,7 @@ rag-workflow/
 ## Features
 
 - **LangGraph RAG pipeline** that fuses retrieval and generation for grounded responses.
-- **Streamlit + FastAPI surfaces** for conversational and programmatic access to the same workflow.
+- **Next.js control room + FastAPI API** for conversational oversight and programmatic access to the same workflow.
 - **Hybrid search** combining `intfloat/multilingual-e5-large-instruct` dense vectors with Qdrant BM25 sparse vectors via Reciprocal Rank Fusion (`src/app/db/vector_db.py`).
 - **Environment-driven configuration** covering models, retrieval parameters, and the optional Jina reranker switch.
 - **Flexible ingestion CLI** for URLs/PDFs with chunk controls and caching to avoid reprocessing.
