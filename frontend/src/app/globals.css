@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8f5ee;
-  --foreground: #1f1d2c;
-  --primary: #4254ff;
-  --primary-shadow: rgba(66, 84, 255, 0.22);
-  --primary-soft: rgba(66, 84, 255, 0.08);
-  --accent: #ffb45f;
+  --background: #fff7f0;
+  --foreground: #2d1b10;
+  --primary: #ff7a45;
+  --primary-shadow: rgba(255, 122, 69, 0.24);
+  --primary-soft: rgba(255, 122, 69, 0.12);
+  --accent: #ffd27f;
   --panel: #ffffff;
 }
 
@@ -34,32 +34,32 @@ button {
 }
 
 ::selection {
-  background: rgba(66, 84, 255, 0.2);
+  background: rgba(255, 122, 69, 0.2);
 }
 
 .bg-lab {
   background-image: linear-gradient(
       90deg,
-      rgba(66, 84, 255, 0.12) 1px,
+      rgba(255, 122, 69, 0.18) 1px,
       transparent 1px
     ),
-    linear-gradient(0deg, rgba(66, 84, 255, 0.12) 1px, transparent 1px);
+    linear-gradient(0deg, rgba(255, 122, 69, 0.18) 1px, transparent 1px);
   background-size: 60px 60px;
   background-position: -10px 0;
-  background-color: #fefbf4;
+  background-color: #fff3e6;
 }
 
 .tile-plate {
-  border: 2px solid rgba(72, 54, 20, 0.4);
-  background: #ffe7bd;
-  box-shadow: 0 6px 0 rgba(162, 103, 32, 0.35);
+  border: 2px solid rgba(135, 67, 20, 0.4);
+  background: #ffd9b3;
+  box-shadow: 0 6px 0 rgba(199, 103, 32, 0.38);
 }
 
 .avatar-token {
-  background: #1f1d2c;
-  border: 2px solid #fefbf4;
-  color: #fefbf4;
-  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
+  background: #2d1b10;
+  border: 2px solid #fff7f0;
+  color: #fff7f0;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.18);
 }
 
 .panel-border {
@@ -74,7 +74,7 @@ button {
 
 .input-field {
   background: #ffffff;
-  border: 2px solid rgba(66, 84, 255, 0.35);
+  border: 2px solid rgba(255, 122, 69, 0.35);
   border-radius: 9999px;
   padding: 0.85rem 1.6rem;
   box-shadow: 0 4px 0 var(--primary-shadow);
@@ -92,8 +92,8 @@ button {
   background: var(--primary);
   color: white;
   padding: 0.85rem 2.4rem;
-  border: 2px solid rgba(0, 0, 0, 0.1);
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.18);
+  border: 2px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.16);
   transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
