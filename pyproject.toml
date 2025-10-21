@@ -5,20 +5,20 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "beautifulsoup4>=4.13.3",
-    "fastapi[standard]>=0.115.12",
-    "fastembed>=0.7.1",
-    "ipykernel>=6.29.5",
-    "langgraph>=0.3.30",
-    "openai>=1.74.0",
-    "pydantic-settings>=2.8.1",
-    "pymupdf>=1.26.4",
-    "python-dotenv>=1.1.0",
-    "qdrant-client>=1.15.1",
-    "streamlit>=1.44.1",
-    "unstructured[md]>=0.17.2",
-    "rich>=13.7.0",
+    "beautifulsoup4>=4.14.2",
+    "fastapi[standard]>=0.119.1",
+    "fastembed>=0.7.3",
+    "ipykernel>=7.0.1",
     "ipywidgets>=8.1.7",
+    "langgraph>=1.0.1",
+    "openai>=1.109.1",
+    "pydantic-settings>=2.11.0",
+    "pymupdf>=1.26.5",
+    "python-dotenv>=1.1.1",
+    "qdrant-client>=1.15.1",
+    "rich>=14.2.0",
+    "streamlit>=1.50.0",
+    "unstructured[md]>=0.18.15",
 ]
 
 [tool.setuptools.packages.find]

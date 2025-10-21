@@ -2,7 +2,7 @@ from app.models.models import State, Document, SearchResult
 from app.db.vector_db import VectorDB
 from app.workflow.reranker import Reranker
 from app.core.config import settings
-from langgraph.graph import START, StateGraph
+from langgraph.graph import START, END, StateGraph
 from langgraph.checkpoint.memory import MemorySaver
 from app.workflow.router import LLMClient
 import logging
@@ -56,7 +56,7 @@ class RAGWorkflow:
             query, top_k=self.config.qdrant_search_top_k
         )
         retrieved_docs: list[Document] = [
-            Document(text=doc.text, metadata=doc.metadata["metadata"])
+            Document(text=doc.text, metadata=doc.metadata or {})
             for doc in retrieved_docs_from_db
         ]
         return {**state, "context": retrieved_docs}
@@ -116,6 +116,7 @@ class RAGWorkflow:
             [self.analyze_query, self.retrieve, self.rerank, self.generate]
         )
         graph_builder.add_edge(START, "analyze_query")
+        graph_builder.add_edge("generate", END)
         memory = MemorySaver()
         return graph_builder.compile(checkpointer=memory)
 
