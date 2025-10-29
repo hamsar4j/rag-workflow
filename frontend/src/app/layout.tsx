@@ -9,8 +9,8 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "RAG Control Room",
-  description: "Operations console for the RAG workflow.",
+  title: "RAG Workflow",
+  description: "RAG workflow",
 };
 
 export default function RootLayout({
