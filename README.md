@@ -122,7 +122,7 @@ You can also interact with the RAG system programmatically via its API:
        -F "files=@manual.pdf"
   ```
 
-- `GET /health` — Health check endpoint.
+- `GET /health` — Health check endpoint (includes the active Qdrant collection name).
 
 ## Project Structure
 

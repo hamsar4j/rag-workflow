@@ -4,6 +4,7 @@ import {
   ChangeEvent,
   FormEvent,
   useCallback,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -35,6 +36,7 @@ export function useKnowledgeBase({ apiBase }: UseKnowledgeBaseOptions) {
   const [documents, setDocuments] = useState<KnowledgeDocument[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDocIds, setSelectedDocIds] = useState<string[]>([]);
+  const [collectionName, setCollectionName] = useState<string | null>(null);
 
   const [urlState, setUrlState] = useState<UrlState>({
     input: "",
@@ -93,6 +95,36 @@ export function useKnowledgeBase({ apiBase }: UseKnowledgeBaseOptions) {
   const addDocuments = useCallback((nextDocs: KnowledgeDocument[]) => {
     setDocuments((prev) => [...nextDocs, ...prev]);
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchCollectionName = async () => {
+      try {
+        const response = await fetch(`${apiBase}/health`);
+        if (!response.ok) {
+          return;
+        }
+        const payload = (await response.json().catch(() => null)) as
+          | { qdrant_collection?: string }
+          | null;
+        if (!cancelled && payload && typeof payload === "object") {
+          const name = payload.qdrant_collection;
+          if (typeof name === "string" && name.trim().length > 0) {
+            setCollectionName(name);
+          }
+        }
+      } catch {
+        // Silently ignore health fetch errors; UI can function without metadata.
+      }
+    };
+
+    fetchCollectionName();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [apiBase]);
 
   const handleUrlSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -317,6 +349,7 @@ export function useKnowledgeBase({ apiBase }: UseKnowledgeBaseOptions) {
     toggleAllDocuments,
     allFilteredSelected,
     usagePercent,
+    collectionName,
     urlState,
     setUrlInput: (value: string) => updateUrlState({ input: value }),
     handleUrlSubmit,

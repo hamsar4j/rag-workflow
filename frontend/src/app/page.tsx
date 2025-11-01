@@ -34,6 +34,7 @@ export default function Home() {
     toggleAllDocuments,
     allFilteredSelected,
     usagePercent,
+    collectionName,
     urlState,
     setUrlInput,
     handleUrlSubmit,
@@ -44,8 +45,13 @@ export default function Home() {
 
   const knowledgeHeader = (
     <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         <h1 className="text-xl font-semibold text-slate-900">Knowledge Base</h1>
+        {collectionName ? (
+          <span className="rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-800 shadow-sm">
+            Collection: {collectionName}
+          </span>
+        ) : null}
       </div>
       <p className="text-sm text-slate-500">
         Connect data sources to create a knowledge base for your agents

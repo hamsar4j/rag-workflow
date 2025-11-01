@@ -8,6 +8,7 @@ from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.concurrency import run_in_threadpool
 
+from app.core.config import settings
 from app.ingestion.ingest import load_documents
 from app.ingestion.pdf_loader.pdf_to_text import extract_text_from_pdf
 from app.ingestion.service import ingest_text_documents
@@ -23,6 +24,7 @@ logger = logging.getLogger(__name__)
 
 rag_workflow = None
 ALLOWED_PDF_CONTENT_TYPES = {"application/pdf", "application/octet-stream"}
+QDRANT_COLLECTION = settings.qdrant_collection_name
 
 
 @asynccontextmanager
@@ -246,4 +248,8 @@ async def ingest_pdf(files: list[UploadFile] = File(...)):
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "version": "1.0.0"}
+    return {
+        "status": "healthy",
+        "version": "1.0.0",
+        "qdrant_collection": QDRANT_COLLECTION,
+    }
