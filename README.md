@@ -5,12 +5,14 @@
 This project implements a Retrieval-Augmented Generation (RAG) workflow for building AI-powered question-answering systems. The application combines LangGraph for workflow orchestration, Qdrant for vector storage, and various LLM providers for embeddings and generation.
 
 ![RAG Workflow](assets/rag-workflow.png)
+![RAG Chat](assets/rag-chat.png)
+![RAG KB](assets/rag-kb.png)
 
 ## Architecture
 
 The application follows a modular architecture with the following components:
 
-1. **Frontend**: Next.js control-room interface (`frontend/`) for live chat supervision
+1. **Frontend**: Next.js chat interface (`frontend/`) for live chat supervision
 2. **Backend**: FastAPI server exposing REST endpoints
 3. **Workflow Engine**: LangGraph-powered RAG pipeline with multiple stages
 4. **Vector Store**: Qdrant for efficient similarity search
@@ -45,7 +47,7 @@ The application follows a modular architecture with the following components:
    Fill in the placeholders with your credentials. Key variables:
    - `BACKEND_URL` (default `http://localhost:8000`)
    - `QDRANT_URL` / `QDRANT_API_KEY`, plus optional overrides such as `QDRANT_COLLECTION_NAME` (`sutd`) and `QDRANT_SEARCH_TOP_K` (`10`)
-   - `LLM_API_KEY` with optional `LLM_BASE_URL` / `LLM_MODEL` (default `moonshotai/Kimi-K2-Instruct-0905`)
+   - `LLM_API_KEY` with optional `LLM_BASE_URL` / `LLM_MODEL` (default `moonshotai/Kimi-K2-Instruct-0905`). You can swap models at runtime from the chat dropdown or the `/settings/model` API; the latest choice is stored in-process.
    - `EMBEDDINGS_API_KEY` with optional `EMBEDDINGS_BASE_URL`, `EMBEDDINGS_MODEL` (default `intfloat/multilingual-e5-large-instruct`), and `EMBEDDINGS_DIM` (`1024`)
    - `ENABLE_RERANKER` (`false` by default) plus `RERANKING_API_KEY` when enabling the Jina reranker
 
@@ -53,7 +55,7 @@ The application follows a modular architecture with the following components:
 
 3. **Ingest data**
 
-   Use the control-room UI or the `/ingest/web` and `/ingest/pdf` endpoints documented below to add sources. Upload PDFs directly from the Knowledge Base tab or call the APIs with curl/Postman.
+   Use the chat UI or the `/ingest/web` and `/ingest/pdf` endpoints documented below to add sources. Upload PDFs directly from the Knowledge Base tab or call the APIs with curl/Postman.
 
 4. **Run services**
 
@@ -84,10 +86,10 @@ Regardless of entry point (UI or API), ingestion flows through the same stages:
 ## Usage
 
 1. With FastAPI and the Next.js dev server running, open:
-   - Control Room UI: <http://localhost:3000>
+   - Chat UI: <http://localhost:3000>
    - FastAPI docs: <http://localhost:8000/docs>
 
-2. In the Control Room chat, issue questions against your knowledge base. The UI forwards each prompt to `/query` and renders the grounded answer.
+2. In the chat, use the model dropdown to pick an LLM, then issue questions against your knowledge base. The UI forwards each prompt to `/query` with the selected model and renders the grounded answer.
 
 3. The system will:
    - Analyze your query
@@ -99,12 +101,12 @@ Regardless of entry point (UI or API), ingestion flows through the same stages:
 
 You can also interact with the RAG system programmatically via its API:
 
-- `POST /query` — Submit a question to the RAG system.
+- `POST /query` — Submit a question to the RAG system, optionally overriding the active model.
 
   ```bash
   curl -X POST "http://localhost:8000/query" \
        -H "Content-Type: application/json" \
-       -d '{"query": "Your question here"}'
+       -d '{"query": "Your question here", "model": "deepseek-ai/DeepSeek-R1"}'
   ```
 
 - `POST /ingest/web` — Provide a JSON body with `urls` to crawl and index web pages.
@@ -120,6 +122,16 @@ You can also interact with the RAG system programmatically via its API:
   ```bash
   curl -X POST "http://localhost:8000/ingest/pdf" \
        -F "files=@manual.pdf"
+  ```
+
+- `GET /settings/model` — Return the currently active LLM model.
+
+- `POST /settings/model` — Update the active LLM model. The backend also updates its in-memory configuration so the chat UI stays synchronized.
+
+  ```bash
+  curl -X POST "http://localhost:8000/settings/model" \
+       -H "Content-Type: application/json" \
+       -d '{"model": "moonshotai/Kimi-K2-Instruct-0905"}'
   ```
 
 - `GET /health` — Health check endpoint (includes the active Qdrant collection name).
@@ -140,7 +152,7 @@ rag-workflow/
 │   │   ├── models/             # Data models
 │   │   ├── utils/              # Utility functions
 │   │   └── workflow/           # RAG workflow implementation
-├── frontend/                   # Next.js control-room frontend
+├── frontend/                   # Next.js chat frontend
 ├── assets/                     # Images and documentation assets
 ├── notebooks/                  # Jupyter notebooks
 │   ├── ingest_data.ipynb       # Jupyter notebook for data ingestion
@@ -154,7 +166,7 @@ rag-workflow/
 ## Features
 
 - **LangGraph RAG pipeline** that fuses retrieval and generation for grounded responses.
-- **Next.js control room + FastAPI API** for conversational oversight and programmatic access to the same workflow.
+- **Next.js chat UI + FastAPI API** for conversational oversight and programmatic access to the same workflow, including live LLM switching.
 - **Hybrid search** combining `intfloat/multilingual-e5-large-instruct` dense vectors with Qdrant BM25 sparse vectors via Reciprocal Rank Fusion (`src/app/db/vector_db.py`).
 - **Environment-driven configuration** covering models, retrieval parameters, and the optional Jina reranker switch.
 - **Flexible ingestion CLI** for URLs/PDFs with chunk controls and caching to avoid reprocessing.
