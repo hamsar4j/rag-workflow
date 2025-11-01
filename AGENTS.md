@@ -6,7 +6,7 @@ The core application lives under `src/app/`, with `api.py` exposing the FastAPI 
 
 ## Build, Test, and Development Commands
 
-Run `uv sync` followed by `uv pip install -e .` to install runtime and editable sources. Copy credentials with `cp .env.example .env` and populate API keys before running services. Start Qdrant locally via `docker compose up -d`. Prime the knowledge base with `uv run python -m app.ingestion.cli --urls https://example.com` (see `--help` for PDF and chunking flags). Launch the backend using `uv run fastapi run src/app/api.py`. For the UI, `cd frontend`, install once with `pnpm install`, then run `pnpm dev` (set `NEXT_PUBLIC_RAG_API` if the backend isn’t on `localhost:8000`).
+Run `uv sync` followed by `uv pip install -e .` to install runtime and editable sources. Copy credentials with `cp .env.example .env` and populate API keys before running services. Start Qdrant locally via `docker compose up -d`. Launch the backend using `uv run fastapi run src/app/api.py`. For the UI, `cd frontend`, install once with `pnpm install`, then run `pnpm dev` (set `NEXT_PUBLIC_RAG_API` if the backend isn’t on `localhost:8000`). Use the control-room UI or the `/ingest/web` and `/ingest/pdf` endpoints to add content to the knowledge base.
 
 ## Coding Style & Naming Conventions
 

@@ -51,13 +51,9 @@ The application follows a modular architecture with the following components:
 
    Review `src/app/core/config.py` if you need to adjust defaults beyond these variables.
 
-3. **Ingest data** (first run)
+3. **Ingest data**
 
-   ```bash
-   uv run python -m app.ingestion.cli
-   ```
-
-   The CLI accepts flags such as `--urls`, `--pdfs`, `--chunk-size`, and `--overlap`; run with `--help` to see all options.
+   Use the control-room UI or the `/ingest/web` and `/ingest/pdf` endpoints documented below to add sources. Upload PDFs directly from the Knowledge Base tab or call the APIs with curl/Postman.
 
 4. **Run services**
 
@@ -78,12 +74,12 @@ The application follows a modular architecture with the following components:
 
 ## Ingestion Pipeline
 
-The ingestion CLI orchestrates four stages:
+Regardless of entry point (UI or API), ingestion flows through the same stages:
 
-- **Load sources**: Scrapes default URLs or user-provided URLs/PDFs.
+- **Load sources**: Scrapes URLs or extracts text from uploaded PDFs.
 - **Chunk documents**: Splits text using recursive chunking with configurable size/overlap.
 - **Generate embeddings**: Creates dense vectors with `intfloat/multilingual-e5-large-instruct` and sparse BM25 vectors.
-- **Store in Qdrant**: Persists chunks, embeddings, and metadata; cached runs skip unchanged work.
+- **Store in Qdrant**: Persists chunks, embeddings, and metadata.
 
 ## Usage
 
@@ -138,7 +134,6 @@ rag-workflow/
 │   │   ├── core/               # Configuration
 │   │   ├── db/                 # Database integration (Qdrant)
 │   │   ├── ingestion/          # Data ingestion utilities
-│   │   │   ├── cli.py          # Command-line interface for ingestion
 │   │   │   ├── ingest.py       # Core ingestion functions
 │   │   │   ├── web_loader/     # Web document loading utilities
 │   │   │   └── pdf_loader/     # PDF document loading utilities
