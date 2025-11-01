@@ -103,7 +103,7 @@ The ingestion CLI orchestrates four stages:
 
 You can also interact with the RAG system programmatically via its API:
 
-- `POST /query` - Submit a question to the RAG system
+- `POST /query` — Submit a question to the RAG system.
 
   ```bash
   curl -X POST "http://localhost:8000/query" \
@@ -111,7 +111,22 @@ You can also interact with the RAG system programmatically via its API:
        -d '{"query": "Your question here"}'
   ```
 
-- `GET /health` - Health check endpoint
+- `POST /ingest/web` — Provide a JSON body with `urls` to crawl and index web pages.
+
+  ```bash
+  curl -X POST "http://localhost:8000/ingest/web" \
+       -H "Content-Type: application/json" \
+       -d '{"urls": ["https://example.com/docs"]}'
+  ```
+
+- `POST /ingest/pdf` — Upload one or more PDF files for ingestion.
+
+  ```bash
+  curl -X POST "http://localhost:8000/ingest/pdf" \
+       -F "files=@manual.pdf"
+  ```
+
+- `GET /health` — Health check endpoint.
 
 ## Project Structure
 

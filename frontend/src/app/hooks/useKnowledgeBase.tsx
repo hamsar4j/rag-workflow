@@ -25,30 +25,8 @@ type PdfState = {
   status: IngestionStatus | null;
 };
 
-const SEED_DOCUMENTS: KnowledgeDocument[] = [
-  {
-    id: createId(),
-    name: "Terms of Service.pdf",
-    sourceType: "PDF",
-    lastSync: "2025-03-18T00:00:00Z",
-    size: "218.39 KB",
-    tags: ["Support"],
-    status: "Ready",
-  },
-  {
-    id: createId(),
-    name: "Privacy Policy.pdf",
-    sourceType: "PDF",
-    lastSync: "2025-03-18T00:15:00Z",
-    size: "241.90 KB",
-    tags: ["Document", "Support"],
-    status: "Ready",
-  },
-];
-
 export function useKnowledgeBase({ apiBase }: UseKnowledgeBaseOptions) {
-  const [documents, setDocuments] =
-    useState<KnowledgeDocument[]>(SEED_DOCUMENTS);
+  const [documents, setDocuments] = useState<KnowledgeDocument[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDocIds, setSelectedDocIds] = useState<string[]>([]);
   const [showAddSource, setShowAddSource] = useState(true);
@@ -216,6 +194,8 @@ export function useKnowledgeBase({ apiBase }: UseKnowledgeBaseOptions) {
   const handlePdfSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (pdfState.pending) return;
+    const formElement = event.currentTarget;
+
     const stagedFiles = [...pdfState.files];
     if (stagedFiles.length === 0) {
       updatePdfState({
@@ -283,7 +263,7 @@ export function useKnowledgeBase({ apiBase }: UseKnowledgeBaseOptions) {
           warnings,
         },
       });
-      event.currentTarget.reset();
+      formElement.reset();
     } catch (err) {
       const message =
         err instanceof Error

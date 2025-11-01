@@ -64,19 +64,6 @@ export function KnowledgeBaseView({
             <Plus className="h-4 w-4" />
             Add Data Source
           </button>
-          <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-500">
-            <p className="font-semibold text-slate-900">Connected Sources</p>
-            <ul className="mt-3 space-y-2 text-sm text-slate-500">
-              <li className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-[var(--success)]" />
-                My data
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-slate-300" />
-                Shared drives
-              </li>
-            </ul>
-          </div>
         </div>
       </div>
 

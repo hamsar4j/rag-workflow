@@ -1,5 +1,5 @@
-from typing_extensions import TypedDict, Any
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from typing_extensions import Any, TypedDict
 from dataclasses import dataclass
 
 
@@ -28,3 +28,13 @@ class State(TypedDict):
 class QueryRequest(BaseModel):
     query: str
     config: dict[str, Any] = {"configurable": {"thread_id": "abc123"}}
+
+
+class IngestWebRequest(BaseModel):
+    urls: list[str] = Field(..., min_length=1, description="List of URLs to ingest.")
+
+
+class IngestionResponse(BaseModel):
+    chunk_count: int
+    document_count: int
+    warnings: list[str] = Field(default_factory=list)

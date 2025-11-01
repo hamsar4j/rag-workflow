@@ -1,15 +1,28 @@
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
-from app.models.models import QueryRequest
-from app.workflow import build_rag_workflow
 import logging
+import os
 import time
+from contextlib import asynccontextmanager
+from typing import Iterable, Sequence
+
+from fastapi import FastAPI, File, HTTPException, Request, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+from starlette.concurrency import run_in_threadpool
+
+from app.ingestion.ingest import load_documents
+from app.ingestion.pdf_loader.pdf_to_text import extract_text_from_pdf
+from app.ingestion.service import ingest_text_documents
+from app.models.models import (
+    IngestionResponse,
+    IngestWebRequest,
+    QueryRequest,
+)
+from app.workflow import build_rag_workflow
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 rag_workflow = None
+ALLOWED_PDF_CONTENT_TYPES = {"application/pdf", "application/octet-stream"}
 
 
 @asynccontextmanager
@@ -88,6 +101,147 @@ async def run_query(request: QueryRequest):
     except Exception as e:
         logger.error(f"Error during RAG workflow invocation: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"RAG workflow failed: {str(e)}")
+
+
+def _combine_warnings(*warning_sequences: Sequence[str]) -> list[str]:
+    """Merge warning sequences while removing empty entries."""
+
+    merged: list[str] = []
+    for seq in warning_sequences:
+        for warning in seq or []:
+            warning_text = warning.strip()
+            if warning_text:
+                merged.append(warning_text)
+    return merged
+
+
+def _sanitize_filename(filename: str | None) -> str:
+    """Return a safe filename for metadata and logs."""
+
+    if not filename:
+        return "uploaded-document.pdf"
+    return os.path.basename(filename)
+
+
+def _loader_warning(text: str) -> str | None:
+    """Check whether scraped content indicates an error and return a warning message."""
+
+    normalized = text.strip().lower()
+    for prefix, message in (
+        ("error", "loader reported an error"),
+        ("unexpected error", "loader reported an error"),
+        ("could not find the main content", "unable to locate main content"),
+    ):
+        if normalized.startswith(prefix):
+            return message
+    return None
+
+
+async def _ingest_documents(
+    docs: Iterable[tuple[str, str]],
+    extra_warnings: Sequence[str] | None = None,
+) -> IngestionResponse:
+    try:
+        result = await run_in_threadpool(ingest_text_documents, docs)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+    warnings = _combine_warnings(extra_warnings or [], result.warnings)
+    return IngestionResponse(
+        chunk_count=result.chunk_count,
+        document_count=result.document_count,
+        warnings=warnings,
+    )
+
+
+@app.post("/ingest/web", response_model=IngestionResponse)
+async def ingest_web(request: IngestWebRequest):
+    """Ingest documents by crawling the provided URLs."""
+
+    urls = [url.strip() for url in request.urls if url.strip()]
+    if not urls:
+        raise HTTPException(
+            status_code=400, detail="Provide at least one URL to ingest."
+        )
+
+    try:
+        raw_docs = await run_in_threadpool(load_documents, urls)
+    except Exception as exc:
+        logger.error("Failed to fetch URLs: %s", exc, exc_info=True)
+        raise HTTPException(
+            status_code=500, detail=f"Failed to fetch URLs: {exc}"
+        ) from exc
+
+    preprocessed: list[tuple[str, str]] = []
+    warnings: list[str] = []
+    for text, source in raw_docs:
+        normalized_text = (text or "").strip()
+        if not normalized_text:
+            warnings.append(f"{source}: no content extracted.")
+            continue
+        loader_issue = _loader_warning(normalized_text)
+        if loader_issue:
+            warnings.append(f"{source}: {loader_issue} – skipping.")
+            continue
+        preprocessed.append((normalized_text, source))
+
+    if not preprocessed:
+        detail = (
+            warnings[0]
+            if warnings
+            else "No usable content retrieved from the supplied URLs."
+        )
+        raise HTTPException(status_code=400, detail=detail)
+
+    return await _ingest_documents(preprocessed, warnings)
+
+
+@app.post("/ingest/pdf", response_model=IngestionResponse)
+async def ingest_pdf(files: list[UploadFile] = File(...)):
+    """Ingest uploaded PDF files."""
+
+    if not files:
+        raise HTTPException(status_code=400, detail="Attach at least one PDF file.")
+
+    preprocessed: list[tuple[str, str]] = []
+    warnings: list[str] = []
+    for upload in files:
+        filename = _sanitize_filename(upload.filename)
+        content_type = (upload.content_type or "").lower()
+        if content_type and content_type not in ALLOWED_PDF_CONTENT_TYPES:
+            warnings.append(
+                f"{filename}: unsupported content type '{upload.content_type}'."
+            )
+            continue
+
+        data = await upload.read()
+        if not data:
+            warnings.append(f"{filename}: file is empty.")
+            continue
+
+        try:
+            text = await run_in_threadpool(
+                extract_text_from_pdf,
+                data,
+                filename,
+            )
+        except Exception as exc:
+            logger.warning("Failed to parse PDF %s: %s", filename, exc, exc_info=True)
+            warnings.append(f"{filename}: failed to extract text ({exc}).")
+            continue
+
+        normalized_text = text.strip()
+        if not normalized_text:
+            warnings.append(f"{filename}: produced empty text after extraction.")
+            continue
+
+        preprocessed.append((normalized_text, f"file://{filename}"))
+
+    if not preprocessed:
+        detail = warnings[0] if warnings else "No valid PDFs were processed."
+        raise HTTPException(status_code=400, detail=detail)
+
+    return await _ingest_documents(preprocessed, warnings)
 
 
 @app.get("/health")

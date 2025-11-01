@@ -48,9 +48,6 @@ export default function Home() {
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
         <h1 className="text-xl font-semibold text-slate-900">Knowledge Base</h1>
-        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-600">
-          Beta
-        </span>
       </div>
       <p className="text-sm text-slate-500">
         Connect data sources to create a knowledge base for your agents
