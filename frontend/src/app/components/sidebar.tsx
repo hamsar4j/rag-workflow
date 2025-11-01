@@ -31,7 +31,7 @@ export function Sidebar({
   documentCount,
 }: SidebarProps) {
   return (
-    <aside className="flex w-20 flex-col border-r border-slate-200 bg-gradient-to-b from-[#1d2856] via-[#182346] to-[#11182f] px-3 py-6 text-slate-200 lg:w-64">
+    <aside className="flex w-20 flex-col border-r border-slate-200 bg-linear-to-b from-[#1d2856] via-[#182346] to-[#11182f] px-3 py-6 text-slate-200 lg:w-64">
       <nav className="flex-1 space-y-1">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;

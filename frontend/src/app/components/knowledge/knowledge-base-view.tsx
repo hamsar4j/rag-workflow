@@ -1,8 +1,9 @@
 "use client";
 
 import { ChangeEvent, FormEvent } from "react";
+import { ToyBrick, RotateCcw, Search, Tag } from "lucide-react";
+
 import { IngestionStatus, KnowledgeDocument } from "../../types/dashboard";
-import { ToyBrick, Plus, RotateCcw, Search, Tag } from "lucide-react";
 import { formatDateString, formatFileSize } from "../../utils/formatters";
 
 type UrlState = {
@@ -25,8 +26,6 @@ type KnowledgeBaseViewProps = {
   onToggleDocument: (id: string) => void;
   onToggleAll: (checked: boolean) => void;
   allFilteredSelected: boolean;
-  showAddSource: boolean;
-  onToggleAddSource: () => void;
   urlState: UrlState;
   onUrlInputChange: (value: string) => void;
   onUrlSubmit: (event: FormEvent<HTMLFormElement>) => void;
@@ -43,8 +42,6 @@ export function KnowledgeBaseView({
   onToggleDocument,
   onToggleAll,
   allFilteredSelected,
-  showAddSource,
-  onToggleAddSource,
   urlState,
   onUrlInputChange,
   onUrlSubmit,
@@ -53,21 +50,8 @@ export function KnowledgeBaseView({
   onPdfSubmit,
 }: KnowledgeBaseViewProps) {
   return (
-    <section className="flex h-full flex-col lg:flex-row">
-      <div className="hidden w-72 shrink-0 border-r border-slate-200 bg-white p-6 lg:flex lg:flex-col lg:gap-6">
-        <div className="space-y-3">
-          <button
-            type="button"
-            onClick={onToggleAddSource}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
-          >
-            <Plus className="h-4 w-4" />
-            Add Data Source
-          </button>
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto px-6 py-8 lg:px-10">
+    <section className="flex h-full flex-col">
+      <div className="flex-1 overflow-y-auto px-6 py-8 lg:px-24">
         <div className="flex flex-col gap-6">
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <div className="flex flex-wrap items-center gap-3">
@@ -190,143 +174,141 @@ export function KnowledgeBaseView({
             </div>
           </div>
 
-          {showAddSource && (
-            <div className="grid gap-6 lg:grid-cols-2">
-              <form
-                onSubmit={onUrlSubmit}
-                className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
-              >
-                <div>
-                  <h3 className="text-sm font-semibold text-slate-900">
-                    Ingest website URLs
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    Paste one URL per line. We&apos;ll crawl, chunk, and embed
-                    the contents automatically.
-                  </p>
-                </div>
-                <textarea
-                  className="h-32 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:outline-none"
-                  placeholder="https://example.com/report&#10;https://docs.example.com/faq"
-                  value={urlState.input}
-                  onChange={(event) => onUrlInputChange(event.target.value)}
+          <div className="grid gap-6 lg:grid-cols-2">
+            <form
+              onSubmit={onUrlSubmit}
+              className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+            >
+              <div>
+                <h3 className="text-sm font-semibold text-slate-900">
+                  Ingest website URLs
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Paste one URL per line. We&apos;ll crawl, chunk, and embed the
+                  contents automatically.
+                </p>
+              </div>
+              <textarea
+                className="h-32 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:outline-none"
+                placeholder="https://example.com/report"
+                value={urlState.input}
+                onChange={(event) => onUrlInputChange(event.target.value)}
+                disabled={urlState.pending}
+              />
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <button
+                  className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-blue-300"
+                  type="submit"
                   disabled={urlState.pending}
-                />
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <button
-                    className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-blue-300"
-                    type="submit"
-                    disabled={urlState.pending}
-                  >
-                    {urlState.pending ? "Ingesting…" : "Ingest URLs"}
-                  </button>
-                  {urlState.pending && (
-                    <span className="text-sm text-slate-500">
-                      Initializing crawler…
-                    </span>
-                  )}
-                </div>
-                {urlState.status && (
-                  <div
-                    className={`rounded-xl border px-4 py-3 text-sm ${
-                      urlState.status.type === "success"
-                        ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                        : "border-rose-200 bg-rose-50 text-rose-600"
-                    }`}
-                  >
-                    <p className="font-medium">{urlState.status.message}</p>
-                    {urlState.status.warnings?.length ? (
-                      <ul className="mt-2 space-y-1 text-xs text-amber-600">
-                        {urlState.status.warnings.map((warning) => (
-                          <li key={warning}>• {warning}</li>
-                        ))}
-                      </ul>
-                    ) : null}
-                  </div>
-                )}
-              </form>
-
-              <form
-                onSubmit={onPdfSubmit}
-                className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
-              >
-                <div>
-                  <h3 className="text-sm font-semibold text-slate-900">
-                    Upload PDF documents
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    Drop contract PDFs, operating manuals, or reports to keep
-                    the knowledge base fresh.
-                  </p>
-                </div>
-                <label
-                  htmlFor="pdf-upload"
-                  className="flex h-32 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 text-sm text-slate-500 transition hover:border-blue-400 hover:bg-blue-50"
                 >
-                  <ToyBrick className="h-6 w-6 text-blue-500" />
-                  <span className="font-medium text-slate-700">
-                    Select PDF files
+                  {urlState.pending ? "Ingesting…" : "Ingest URLs"}
+                </button>
+                {urlState.pending && (
+                  <span className="text-sm text-slate-500">
+                    Initializing crawler…
                   </span>
-                  <span className="text-xs text-slate-400">
-                    Supports multiple uploads
-                  </span>
-                  <input
-                    id="pdf-upload"
-                    type="file"
-                    accept="application/pdf"
-                    multiple
-                    className="hidden"
-                    onChange={onPdfSelection}
-                    disabled={pdfState.pending}
-                  />
-                </label>
-                {pdfState.files.length > 0 && (
-                  <ul className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-600">
-                    {pdfState.files.map((file) => (
-                      <li key={file.name} className="flex justify-between">
-                        <span className="truncate">{file.name}</span>
-                        <span className="pl-2 text-slate-400">
-                          {formatFileSize(file.size)}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
                 )}
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <button
-                    className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-blue-300"
-                    type="submit"
-                    disabled={pdfState.pending}
-                  >
-                    {pdfState.pending ? "Uploading…" : "Ingest PDFs"}
-                  </button>
-                  {pdfState.pending && (
-                    <span className="text-sm text-slate-500">
-                      Computing embeddings…
-                    </span>
-                  )}
+              </div>
+              {urlState.status && (
+                <div
+                  className={`rounded-xl border px-4 py-3 text-sm ${
+                    urlState.status.type === "success"
+                      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                      : "border-rose-200 bg-rose-50 text-rose-600"
+                  }`}
+                >
+                  <p className="font-medium">{urlState.status.message}</p>
+                  {urlState.status.warnings?.length ? (
+                    <ul className="mt-2 space-y-1 text-xs text-amber-600">
+                      {urlState.status.warnings.map((warning) => (
+                        <li key={warning}>• {warning}</li>
+                      ))}
+                    </ul>
+                  ) : null}
                 </div>
-                {pdfState.status && (
-                  <div
-                    className={`rounded-xl border px-4 py-3 text-sm ${
-                      pdfState.status.type === "success"
-                        ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                        : "border-rose-200 bg-rose-50 text-rose-600"
-                    }`}
-                  >
-                    <p className="font-medium">{pdfState.status.message}</p>
-                    {pdfState.status.warnings?.length ? (
-                      <ul className="mt-2 space-y-1 text-xs text-amber-600">
-                        {pdfState.status.warnings.map((warning) => (
-                          <li key={warning}>• {warning}</li>
-                        ))}
-                      </ul>
-                    ) : null}
-                  </div>
+              )}
+            </form>
+
+            <form
+              onSubmit={onPdfSubmit}
+              className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+            >
+              <div>
+                <h3 className="text-sm font-semibold text-slate-900">
+                  Upload PDF documents
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Drop contract PDFs, operating manuals, or reports to keep the
+                  knowledge base fresh.
+                </p>
+              </div>
+              <label
+                htmlFor="pdf-upload"
+                className="flex h-32 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 text-sm text-slate-500 transition hover:border-blue-400 hover:bg-blue-50"
+              >
+                <ToyBrick className="h-6 w-6 text-blue-500" />
+                <span className="font-medium text-slate-700">
+                  Select PDF files
+                </span>
+                <span className="text-xs text-slate-400">
+                  Supports multiple uploads
+                </span>
+                <input
+                  id="pdf-upload"
+                  type="file"
+                  accept="application/pdf"
+                  multiple
+                  className="hidden"
+                  onChange={onPdfSelection}
+                  disabled={pdfState.pending}
+                />
+              </label>
+              {pdfState.files.length > 0 && (
+                <ul className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-600">
+                  {pdfState.files.map((file) => (
+                    <li key={file.name} className="flex justify-between">
+                      <span className="truncate">{file.name}</span>
+                      <span className="pl-2 text-slate-400">
+                        {formatFileSize(file.size)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <button
+                  className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-blue-300"
+                  type="submit"
+                  disabled={pdfState.pending}
+                >
+                  {pdfState.pending ? "Uploading…" : "Ingest PDFs"}
+                </button>
+                {pdfState.pending && (
+                  <span className="text-sm text-slate-500">
+                    Computing embeddings…
+                  </span>
                 )}
-              </form>
-            </div>
-          )}
+              </div>
+              {pdfState.status && (
+                <div
+                  className={`rounded-xl border px-4 py-3 text-sm ${
+                    pdfState.status.type === "success"
+                      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                      : "border-rose-200 bg-rose-50 text-rose-600"
+                  }`}
+                >
+                  <p className="font-medium">{pdfState.status.message}</p>
+                  {pdfState.status.warnings?.length ? (
+                    <ul className="mt-2 space-y-1 text-xs text-amber-600">
+                      {pdfState.status.warnings.map((warning) => (
+                        <li key={warning}>• {warning}</li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </div>
+              )}
+            </form>
+          </div>
         </div>
       </div>
     </section>

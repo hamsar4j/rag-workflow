@@ -34,8 +34,6 @@ export default function Home() {
     toggleAllDocuments,
     allFilteredSelected,
     usagePercent,
-    showAddSource,
-    toggleAddSource,
     urlState,
     setUrlInput,
     handleUrlSubmit,
@@ -65,7 +63,7 @@ export default function Home() {
   );
 
   return (
-    <div className="flex min-h-screen bg-[var(--surface-base)] text-slate-900">
+    <div className="flex min-h-screen bg-(--surface-base) text-slate-900">
       <Sidebar
         activeTab={activeTab}
         onTabChange={setActiveTab}
@@ -97,8 +95,6 @@ export default function Home() {
               onToggleDocument={toggleDocumentSelection}
               onToggleAll={toggleAllDocuments}
               allFilteredSelected={allFilteredSelected}
-              showAddSource={showAddSource}
-              onToggleAddSource={toggleAddSource}
               urlState={urlState}
               onUrlInputChange={setUrlInput}
               onUrlSubmit={handleUrlSubmit}

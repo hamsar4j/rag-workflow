@@ -1,6 +1,12 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useCallback, useMemo, useState } from "react";
+import {
+  ChangeEvent,
+  FormEvent,
+  useCallback,
+  useMemo,
+  useState,
+} from "react";
 import {
   IngestionResponse,
   IngestionStatus,
@@ -29,7 +35,6 @@ export function useKnowledgeBase({ apiBase }: UseKnowledgeBaseOptions) {
   const [documents, setDocuments] = useState<KnowledgeDocument[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDocIds, setSelectedDocIds] = useState<string[]>([]);
-  const [showAddSource, setShowAddSource] = useState(true);
 
   const [urlState, setUrlState] = useState<UrlState>({
     input: "",
@@ -302,10 +307,6 @@ export function useKnowledgeBase({ apiBase }: UseKnowledgeBaseOptions) {
     );
   };
 
-  const toggleAddSource = () => {
-    setShowAddSource((prev) => !prev);
-  };
-
   return {
     documents,
     filteredDocs,
@@ -316,8 +317,6 @@ export function useKnowledgeBase({ apiBase }: UseKnowledgeBaseOptions) {
     toggleAllDocuments,
     allFilteredSelected,
     usagePercent,
-    showAddSource,
-    toggleAddSource,
     urlState,
     setUrlInput: (value: string) => updateUrlState({ input: value }),
     handleUrlSubmit,
