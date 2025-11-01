@@ -46,14 +46,16 @@ export default function Home() {
   const knowledgeHeader = (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-3">
-        <h1 className="text-xl font-semibold text-slate-900">Knowledge Base</h1>
+        <h1 className="text-xl font-semibold text-(--text-primary)">
+          Knowledge Base
+        </h1>
         {collectionName ? (
-          <span className="rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-800 shadow-sm">
+          <span className="rounded-full border border-(--border-subtle) bg-(--surface-muted) px-3 py-1 text-xs font-semibold text-(--text-secondary) shadow-sm">
             Collection: {collectionName}
           </span>
         ) : null}
       </div>
-      <p className="text-sm text-slate-500">
+      <p className="text-sm text-(--text-muted)">
         Connect data sources to create a knowledge base for your agents
       </p>
     </div>
@@ -61,15 +63,17 @@ export default function Home() {
 
   const chatHeader = (
     <div className="flex flex-col gap-1">
-      <h1 className="text-xl font-semibold text-slate-900">Chat Console</h1>
-      <p className="text-sm text-slate-500">
+      <h1 className="text-xl font-semibold text-(--text-primary)">
+        Chat Console
+      </h1>
+      <p className="text-sm text-(--text-muted)">
         Monitor conversations and test retrieval quality in real time
       </p>
     </div>
   );
 
   return (
-    <div className="flex min-h-screen bg-(--surface-base) text-slate-900">
+    <div className="flex min-h-screen bg-(--surface-base) text-(--text-primary)">
       <Sidebar
         activeTab={activeTab}
         onTabChange={setActiveTab}
@@ -78,7 +82,7 @@ export default function Home() {
       />
 
       <div className="flex flex-1 flex-col">
-        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 bg-white px-6 py-5 lg:px-10">
+        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-(--border-subtle) bg-(--surface-panel) px-6 py-5 lg:px-10">
           {activeTab === "knowledge-base" ? knowledgeHeader : chatHeader}
         </header>
 
@@ -113,9 +117,11 @@ export default function Home() {
       </div>
 
       {activeTab === "knowledge-base" && selectedDocIds.length > 0 && (
-        <div className="pointer-events-none fixed right-8 bottom-8 z-20 hidden w-72 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 shadow-lg lg:block">
-          <p className="text-sm font-semibold text-slate-900">Tags assigned</p>
-          <p className="mt-1 text-xs text-slate-500">
+        <div className="pointer-events-none fixed right-8 bottom-8 z-20 hidden w-72 rounded-2xl border border-(--border-subtle) bg-(--surface-panel) px-4 py-3 text-sm text-(--text-secondary) shadow-lg lg:block">
+          <p className="text-sm font-semibold text-(--text-primary)">
+            Tags assigned
+          </p>
+          <p className="mt-1 text-xs text-(--text-muted)">
             {selectedDocIds.length} document
             {selectedDocIds.length === 1 ? "" : "s"} tagged successfully.
           </p>

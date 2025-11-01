@@ -34,11 +34,11 @@ export function ChatView({
               <div
                 className={`max-w-[75%] rounded-2xl border px-4 py-3 text-sm leading-relaxed shadow-sm ${
                   message.role === "user"
-                    ? "border-transparent bg-blue-600 text-white"
-                    : "border-slate-200 bg-white text-slate-700"
+                    ? "border-[rgba(168,85,247,0.35)] bg-[rgba(168,85,247,0.15)] text-(--accent-primary)"
+                    : "border-(--border-subtle) bg-(--surface-panel) text-(--text-secondary)"
                 }`}
               >
-                <p className="mb-1 text-xs font-medium tracking-wide text-slate-400 uppercase">
+                <p className="mb-1 text-xs font-medium tracking-wide text-(--text-muted) uppercase">
                   {message.role === "user" ? "You" : "Agent"}
                 </p>
                 <p className="whitespace-pre-line">{message.content}</p>
@@ -47,8 +47,8 @@ export function ChatView({
           ))}
           {pending && (
             <div className="flex justify-start">
-              <div className="max-w-[75%] rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-500 shadow-sm">
-                <p className="text-xs font-medium tracking-wide text-slate-400 uppercase">
+              <div className="max-w-[75%] rounded-2xl border border-(--border-subtle) bg-(--surface-panel) px-4 py-3 text-sm text-(--text-muted) shadow-sm">
+                <p className="text-xs font-medium tracking-wide text-(--text-muted) uppercase">
                   Agent
                 </p>
                 <p className="mt-1">Retrieving context…</p>
@@ -59,13 +59,13 @@ export function ChatView({
       </div>
 
       <form
-        className="border-t border-slate-200 bg-white px-6 py-5 lg:px-10"
+        className="border-t border-(--border-subtle) bg-(--surface-panel) px-6 py-5 lg:px-10"
         onSubmit={onSubmit}
       >
         <div className="mx-auto flex w-full max-w-3xl flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative flex-1">
             <input
-              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 shadow-sm transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none"
+              className="w-full rounded-2xl border border-(--border-subtle) bg-(--surface-muted) px-4 py-3 text-sm text-(--text-primary) shadow-sm transition placeholder:text-(--text-muted) focus:border-[rgba(168,85,247,0.45)] focus:bg-(--surface-panel) focus:ring-2 focus:ring-[rgba(168,85,247,0.25)] focus:outline-none"
               type="text"
               placeholder="Ask about sources, ingestion status, or response quality…"
               value={input}
@@ -73,7 +73,7 @@ export function ChatView({
             />
           </div>
           <button
-            className="flex items-center justify-center rounded-2xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-blue-300"
+            className="flex items-center justify-center rounded-2xl bg-(--accent-violet) px-6 py-3 text-sm font-semibold text-(--accent-primary-strong) shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             type="submit"
             disabled={pending}
           >
@@ -81,7 +81,7 @@ export function ChatView({
           </button>
         </div>
         {error && (
-          <p className="mx-auto mt-2 w-full max-w-3xl text-sm text-rose-500">
+          <p className="mx-auto mt-2 w-full max-w-3xl text-sm text-(--error)">
             {error}
           </p>
         )}

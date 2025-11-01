@@ -1,7 +1,8 @@
 "use client";
 
+import type { ComponentType } from "react";
 import { TabKey } from "../types/dashboard";
-import { UserRound, BookCopy, Settings, BotMessageSquare } from "lucide-react";
+import { BookCopy, BotMessageSquare } from "lucide-react";
 
 type SidebarProps = {
   activeTab: TabKey;
@@ -13,15 +14,13 @@ type SidebarProps = {
 type NavItem = {
   id: TabKey | string;
   label: string;
-  icon: (props: { className?: string }) => JSX.Element;
+  icon: ComponentType<{ className?: string }>;
   disabled?: boolean;
 };
 
 const NAV_ITEMS: NavItem[] = [
   { id: "chat", label: "Chat", icon: BotMessageSquare },
-  { id: "agents", label: "Agents", icon: UserRound, disabled: true },
   { id: "knowledge-base", label: "Knowledge Base", icon: BookCopy },
-  { id: "settings", label: "Settings", icon: Settings, disabled: true },
 ];
 
 export function Sidebar({
@@ -31,7 +30,7 @@ export function Sidebar({
   documentCount,
 }: SidebarProps) {
   return (
-    <aside className="flex w-20 flex-col border-r border-slate-200 bg-linear-to-b from-[#1d2856] via-[#182346] to-[#11182f] px-3 py-6 text-slate-200 lg:w-64">
+    <aside className="flex w-20 flex-col border-r border-(--border-subtle) bg-(--surface-muted) px-3 py-6 text-(--text-secondary) lg:w-64">
       <nav className="flex-1 space-y-1">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
@@ -50,15 +49,15 @@ export function Sidebar({
               disabled={isDisabled}
               className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition ${
                 isActive
-                  ? "bg-white/10 text-white shadow-sm"
-                  : "text-slate-200/80 hover:bg-white/5 hover:text-white"
+                  ? "bg-(--surface-raised) text-(--accent-primary) shadow-sm"
+                  : "text-(--text-muted) hover:bg-(--surface-muted) hover:text-(--text-primary)"
               } ${isDisabled ? "cursor-not-allowed opacity-40" : ""}`}
             >
               <span
                 className={`flex h-9 w-9 items-center justify-center rounded-lg border transition ${
                   isActive
-                    ? "border-white/30 bg-white/10 text-white"
-                    : "border-white/10 bg-transparent text-slate-200/70 group-hover:border-white/20 group-hover:text-white"
+                    ? "border-(--border-strong) bg-(--surface-panel) text-(--accent-primary)"
+                    : "border-(--border-subtle) bg-(--surface-muted) text-(--text-muted) group-hover:border-(--border-strong) group-hover:text-(--text-primary)"
                 }`}
               >
                 <Icon className="h-4 w-4" />
@@ -69,18 +68,22 @@ export function Sidebar({
         })}
       </nav>
 
-      <div className="mt-6 hidden flex-col gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-xs text-slate-200/80 backdrop-blur lg:flex">
+      <div className="mt-6 hidden flex-col gap-3 rounded-2xl border border-(--border-subtle) bg-(--surface-muted) px-4 py-3 text-xs text-(--text-muted) lg:flex">
         <div className="flex items-center justify-between">
           <span>Usage</span>
-          <span className="font-medium text-white">{documentCount} / 100</span>
+          <span className="font-medium text-(--accent-primary)">
+            {documentCount} / 100
+          </span>
         </div>
-        <div className="h-2 w-full rounded-full bg-white/10">
+        <div className="h-2 w-full rounded-full bg-(--border-subtle)">
           <div
             className="h-2 rounded-full bg-emerald-400 transition-all"
             style={{ width: `${usagePercent}%` }}
           />
         </div>
-        <p>Selected documents have been tagged successfully.</p>
+        <p className="text-(--text-secondary)">
+          Selected documents have been tagged successfully.
+        </p>
       </div>
     </aside>
   );
