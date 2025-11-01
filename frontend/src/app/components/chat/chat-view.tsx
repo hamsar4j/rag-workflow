@@ -11,6 +11,7 @@ type ChatViewProps = {
   input: string;
   onInputChange: (value: string) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  modelName: string;
 };
 
 export function ChatView({
@@ -20,6 +21,7 @@ export function ChatView({
   input,
   onInputChange,
   onSubmit,
+  modelName,
 }: ChatViewProps) {
   const hasMessages = messages.length > 0;
 
@@ -49,9 +51,9 @@ export function ChatView({
         <div className="flex flex-1 items-center justify-center px-6 py-12 lg:px-10">
           <div className="flex w-full max-w-2xl flex-col items-center gap-8 text-center">
             <div className="flex flex-col items-center gap-4">
-              <div className="flex items-center justify-center">
-                <span className="text-lg font-semibold text-(--accent-primary)">
-                  kimi-k2-instruct-0905
+              <div className="flex max-w-[16rem] items-center justify-center rounded-3xl border border-(--border-subtle) bg-(--surface-panel) px-6 py-3 shadow-lg shadow-black/10">
+                <span className="truncate text-sm font-semibold text-(--accent-primary)">
+                  {modelName}
                 </span>
               </div>
             </div>

@@ -138,6 +138,9 @@ export default function Home() {
     }
   };
 
+  const activeModelLabel =
+    modelOptions.find((option) => option.value === model)?.label ?? model;
+
   const knowledgeHeader = (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-3">
@@ -204,6 +207,7 @@ export default function Home() {
               input={chatInput}
               onInputChange={setChatInput}
               onSubmit={handleChatSubmit}
+              modelName={activeModelLabel}
             />
           ) : (
             <KnowledgeBaseView
