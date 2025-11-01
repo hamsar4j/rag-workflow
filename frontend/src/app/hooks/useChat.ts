@@ -9,13 +9,7 @@ type UseChatOptions = {
 };
 
 export function useChat({ apiBase }: UseChatOptions) {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: createId(),
-      role: "assistant",
-      content: "Ask me anything and I'll do my best to assist you!",
-    },
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [pending, setPending] = useState(false);
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);

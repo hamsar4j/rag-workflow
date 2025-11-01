@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent } from "react";
+import { LoaderCircle, SendHorizontal } from "lucide-react";
 import { ChatMessage } from "../../types/dashboard";
 
 type ChatViewProps = {
@@ -20,6 +21,62 @@ export function ChatView({
   onInputChange,
   onSubmit,
 }: ChatViewProps) {
+  const hasMessages = messages.length > 0;
+
+  const baseButtonClasses =
+    "flex items-center justify-center rounded-2xl text-(--accent-violet) transition hover:text-(--accent-primary) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(168,85,247,0.25)] disabled:cursor-not-allowed disabled:opacity-60";
+
+  const renderSubmitButton = (size: "compact" | "regular") => (
+    <button
+      className={`${baseButtonClasses} ${
+        size === "compact" ? "h-11 w-11" : "h-12 w-12"
+      }`}
+      type="submit"
+      aria-label={pending ? "Generating response" : "Send message"}
+      disabled={pending}
+    >
+      {pending ? (
+        <LoaderCircle className="h-5 w-5 animate-spin" strokeWidth={2.5} />
+      ) : (
+        <SendHorizontal className="h-5 w-5" strokeWidth={2.3} />
+      )}
+    </button>
+  );
+
+  if (!hasMessages) {
+    return (
+      <section className="flex h-full flex-col">
+        <div className="flex flex-1 items-center justify-center px-6 py-12 lg:px-10">
+          <div className="flex w-full max-w-2xl flex-col items-center gap-8 text-center">
+            <div className="flex flex-col items-center gap-4">
+              <div className="flex items-center justify-center">
+                <span className="text-lg font-semibold text-(--accent-primary)">
+                  kimi-k2-instruct-0905
+                </span>
+              </div>
+            </div>
+
+            <form className="w-full" onSubmit={onSubmit}>
+              <div className="flex items-center gap-3 rounded-3xl border border-(--border-subtle) bg-(--surface-panel) px-6 py-4 shadow-lg shadow-black/10 transition focus-within:border-[rgba(168,85,247,0.45)] focus-within:ring-2 focus-within:ring-[rgba(168,85,247,0.25)]">
+                <input
+                  className="flex-1 bg-transparent text-sm text-(--text-primary) placeholder:text-(--text-muted) focus:outline-none"
+                  type="text"
+                  placeholder="How can I help you today?"
+                  value={input}
+                  onChange={(event) => onInputChange(event.target.value)}
+                  disabled={pending}
+                />
+                {renderSubmitButton("compact")}
+              </div>
+            </form>
+
+            {error && <p className="w-full text-sm text-(--error)">{error}</p>}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="flex h-full flex-col">
       <div className="flex-1 overflow-y-auto px-6 py-8 lg:px-10">
@@ -72,13 +129,7 @@ export function ChatView({
               onChange={(event) => onInputChange(event.target.value)}
             />
           </div>
-          <button
-            className="flex items-center justify-center rounded-2xl bg-(--accent-violet) px-6 py-3 text-sm font-semibold text-(--accent-primary-strong) shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
-            type="submit"
-            disabled={pending}
-          >
-            {pending ? "Generating…" : "Send"}
-          </button>
+          {renderSubmitButton("regular")}
         </div>
         {error && (
           <p className="mx-auto mt-2 w-full max-w-3xl text-sm text-(--error)">
