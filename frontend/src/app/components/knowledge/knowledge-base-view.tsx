@@ -189,7 +189,7 @@ export function KnowledgeBaseView({
                 </p>
               </div>
               <textarea
-                className="h-32 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:outline-none"
+                className="h-32 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:outline-none"
                 placeholder="https://example.com/report"
                 value={urlState.input}
                 onChange={(event) => onUrlInputChange(event.target.value)}

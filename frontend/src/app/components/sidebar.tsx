@@ -72,9 +72,7 @@ export function Sidebar({
       <div className="mt-6 hidden flex-col gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-xs text-slate-200/80 backdrop-blur lg:flex">
         <div className="flex items-center justify-between">
           <span>Usage</span>
-          <span className="font-medium text-white">
-            {documentCount} / 10.0M
-          </span>
+          <span className="font-medium text-white">{documentCount} / 100</span>
         </div>
         <div className="h-2 w-full rounded-full bg-white/10">
           <div

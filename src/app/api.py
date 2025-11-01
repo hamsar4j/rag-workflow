@@ -21,6 +21,8 @@ from app.workflow import build_rag_workflow
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("httpcore").setLevel(logging.WARNING)
 
 rag_workflow = None
 ALLOWED_PDF_CONTENT_TYPES = {"application/pdf", "application/octet-stream"}

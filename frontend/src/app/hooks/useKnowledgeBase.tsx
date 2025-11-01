@@ -72,7 +72,7 @@ export function useKnowledgeBase({ apiBase }: UseKnowledgeBaseOptions) {
     filteredDocs.length > 0 &&
     filteredDocs.every((doc) => validSelectedDocIds.includes(doc.id));
 
-  const usagePercent = Math.min(documents.length * 8, 100);
+  const usagePercent = Math.min(documents.length, 100);
 
   const updateUrlState = useCallback(
     (next: Partial<UrlState>) =>
@@ -105,9 +105,9 @@ export function useKnowledgeBase({ apiBase }: UseKnowledgeBaseOptions) {
         if (!response.ok) {
           return;
         }
-        const payload = (await response.json().catch(() => null)) as
-          | { qdrant_collection?: string }
-          | null;
+        const payload = (await response.json().catch(() => null)) as {
+          qdrant_collection?: string;
+        } | null;
         if (!cancelled && payload && typeof payload === "object") {
           const name = payload.qdrant_collection;
           if (typeof name === "string" && name.trim().length > 0) {
