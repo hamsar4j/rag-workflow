@@ -16,6 +16,7 @@ from app.models.models import (
     IngestionResponse,
     IngestWebRequest,
     QueryRequest,
+    UpdateModelRequest,
 )
 from app.workflow import build_rag_workflow
 
@@ -91,7 +92,12 @@ async def run_query(request: QueryRequest):
         raise HTTPException(status_code=500, detail="RAG workflow not initialized")
 
     try:
-        state = {"question": request.query}
+        selected_model = request.model or settings.llm_model
+        if request.model and request.model != settings.llm_model:
+            os.environ["LLM_MODEL"] = request.model
+            settings.llm_model = request.model
+
+        state = {"question": request.query, "model": selected_model}
         config = request.config if request.config else {}
 
         # Process the query through the RAG workflow
@@ -105,6 +111,28 @@ async def run_query(request: QueryRequest):
     except Exception as e:
         logger.error(f"Error during RAG workflow invocation: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"RAG workflow failed: {str(e)}")
+
+
+@app.get("/settings/model")
+async def get_active_model():
+    """Return the currently configured LLM model."""
+
+    return {"model": settings.llm_model}
+
+
+@app.post("/settings/model")
+async def update_active_model(payload: UpdateModelRequest):
+    """Update the active LLM model for subsequent requests."""
+
+    model = payload.model.strip()
+    if not model:
+        raise HTTPException(status_code=400, detail="Model identifier cannot be empty.")
+
+    os.environ["LLM_MODEL"] = model
+    settings.llm_model = model
+    logger.info("Active LLM model updated to %s", model)
+
+    return {"model": settings.llm_model}
 
 
 def _combine_warnings(*warning_sequences: Sequence[str]) -> list[str]:

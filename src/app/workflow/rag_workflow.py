@@ -101,7 +101,8 @@ class RAGWorkflow:
         )
 
         messages = self.format_prompt(question=state["question"], context=docs_content)
-        response = self.llm.chat_completion(messages)
+        model_override = state.get("model") or self.config.llm_model
+        response = self.llm.chat_completion(messages, model_override=model_override)
 
         logger.info(f"Generated response: {response}")
         return {

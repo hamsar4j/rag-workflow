@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChatView } from "./components/chat/chat-view";
+import { ModelSelect, type ModelOption } from "./components/chat/model-select";
 import { KnowledgeBaseView } from "./components/knowledge/knowledge-base-view";
 import { Sidebar } from "./components/sidebar";
 import { useChat } from "./hooks/useChat";
@@ -14,6 +15,16 @@ const API_BASE =
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<TabKey>("chat");
+  const [modelOptions, setModelOptions] = useState<ModelOption[]>([
+    {
+      label: "kimi-k2-instruct-0905",
+      value: "moonshotai/Kimi-K2-Instruct-0905",
+    },
+    { label: "gpt-oss-120b", value: "openai/gpt-oss-120b" },
+  ]);
+  const [model, setModel] = useState<string>(modelOptions[0]?.value ?? "");
+  const [modelError, setModelError] = useState<string | null>(null);
+  const [isModelUpdating, setIsModelUpdating] = useState(false);
 
   const {
     messages,
@@ -21,8 +32,10 @@ export default function Home() {
     error: chatError,
     input: chatInput,
     setInput: setChatInput,
+    setError: setChatError,
     handleSubmit: handleChatSubmit,
-  } = useChat({ apiBase: API_BASE });
+    resetConversation,
+  } = useChat({ apiBase: API_BASE, model });
 
   const {
     documents,
@@ -43,6 +56,88 @@ export default function Home() {
     handlePdfSubmit,
   } = useKnowledgeBase({ apiBase: API_BASE });
 
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchActiveModel = async () => {
+      try {
+        const response = await fetch(`${API_BASE}/settings/model`);
+        if (!response.ok) {
+          throw new Error(`Failed to load model (status ${response.status})`);
+        }
+
+        const payload = (await response.json()) as { model?: string };
+        const activeModel = payload.model?.trim();
+        if (!isMounted || !activeModel) {
+          return;
+        }
+
+        setModelOptions((prev) => {
+          if (prev.some((option) => option.value === activeModel)) {
+            return prev;
+          }
+          return [...prev, { value: activeModel, label: activeModel }];
+        });
+        setModel(activeModel);
+        setModelError(null);
+      } catch (error) {
+        if (!isMounted) return;
+        setModelError("Unable to load active model. Using default preset.");
+      }
+    };
+
+    fetchActiveModel();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const handleModelChange = async (nextValue: string) => {
+    if (!nextValue || nextValue === model) return;
+
+    const previousModel = model;
+    setModel(nextValue);
+    setModelError(null);
+    setChatError(null);
+    setIsModelUpdating(true);
+
+    try {
+      const response = await fetch(`${API_BASE}/settings/model`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ model: nextValue }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update model (status ${response.status})`);
+      }
+
+      const payload = (await response.json()) as { model?: string };
+      const appliedModel = payload.model?.trim() || nextValue;
+
+      setModel(appliedModel);
+      setModelOptions((prev) => {
+        if (prev.some((option) => option.value === appliedModel)) {
+          return prev;
+        }
+        return [...prev, { value: appliedModel, label: appliedModel }];
+      });
+      resetConversation();
+    } catch (error) {
+      console.error("Failed to update model", error);
+      setModel(previousModel);
+      setModelError("Failed to update model. Please try again.");
+      setChatError(
+        "Switching models failed. Confirm the backend configuration and retry.",
+      );
+    } finally {
+      setIsModelUpdating(false);
+    }
+  };
+
   const knowledgeHeader = (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-3">
@@ -62,13 +157,27 @@ export default function Home() {
   );
 
   const chatHeader = (
-    <div className="flex flex-col gap-1">
-      <h1 className="text-xl font-semibold text-(--text-primary)">
-        Chat Console
-      </h1>
-      <p className="text-sm text-(--text-muted)">
-        Monitor conversations and test retrieval quality in real time
-      </p>
+    <div className="flex w-full flex-wrap items-end justify-between gap-4">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-xl font-semibold text-(--text-primary)">
+          Chat Console
+        </h1>
+        <p className="text-sm text-(--text-muted)">
+          Monitor conversations and test retrieval quality in real time
+        </p>
+      </div>
+      <div className="flex flex-col items-end gap-1 text-right">
+        <ModelSelect
+          value={model}
+          options={modelOptions}
+          onChange={handleModelChange}
+          disabled={chatPending}
+          isUpdating={isModelUpdating}
+        />
+        {modelError ? (
+          <span className="text-xs text-(--error)">{modelError}</span>
+        ) : null}
+      </div>
     </div>
   );
 

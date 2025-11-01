@@ -1,14 +1,15 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useCallback, useState } from "react";
 import { ChatMessage } from "../types/dashboard";
 import { createId } from "../utils/id";
 
 type UseChatOptions = {
   apiBase: string;
+  model: string;
 };
 
-export function useChat({ apiBase }: UseChatOptions) {
+export function useChat({ apiBase, model }: UseChatOptions) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [pending, setPending] = useState(false);
   const [input, setInput] = useState("");
@@ -39,6 +40,7 @@ export function useChat({ apiBase }: UseChatOptions) {
         },
         body: JSON.stringify({
           query: trimmed,
+          model,
           config: { configurable: { thread_id: "web-control-room" } },
         }),
       });
@@ -82,6 +84,13 @@ export function useChat({ apiBase }: UseChatOptions) {
     }
   };
 
+  const resetConversation = useCallback(() => {
+    setMessages([]);
+    setInput("");
+    setError(null);
+    setPending(false);
+  }, []);
+
   return {
     messages,
     pending,
@@ -90,5 +99,6 @@ export function useChat({ apiBase }: UseChatOptions) {
     setInput,
     setError,
     handleSubmit,
+    resetConversation,
   };
 }

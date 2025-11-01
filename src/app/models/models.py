@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing_extensions import Any, TypedDict
+from typing_extensions import Any, NotRequired, TypedDict
 from dataclasses import dataclass
 
 
@@ -16,17 +16,18 @@ class Document:
     metadata: dict[str, Any]
 
 
-@dataclass
 class State(TypedDict):
     question: str
     query: SearchResult
     answer: str
     context: list[Document]
+    model: NotRequired[str]
     # history: list[dict]
 
 
 class QueryRequest(BaseModel):
     query: str
+    model: str | None = None
     config: dict[str, Any] = {"configurable": {"thread_id": "abc123"}}
 
 
@@ -38,3 +39,7 @@ class IngestionResponse(BaseModel):
     chunk_count: int
     document_count: int
     warnings: list[str] = Field(default_factory=list)
+
+
+class UpdateModelRequest(BaseModel):
+    model: str = Field(..., description="LLM model identifier to activate.")

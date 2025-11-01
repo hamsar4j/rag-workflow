@@ -14,13 +14,13 @@ class LLMClient:
         self.config = config
         self.base_url = self.config.llm_base_url
         self.api_key = self.config.llm_api_key
-        self.model = self.config.llm_model
         self.client = OpenAI(base_url=self.base_url, api_key=self.api_key)
 
     def chat_completion(
         self,
         prompt: str,
         response_model: type[BaseModel] | None = None,
+        model_override: str | None = None,
     ) -> Optional[Union[dict[str, Any], BaseModel]]:
         """Generate a chat completion response from the LLM.
 
@@ -31,6 +31,7 @@ class LLMClient:
                 to the API and the validated model instance is returned. When
                 omitted, the response is parsed into a plain dictionary via
                 JSON auto mode.
+            model_override: Optional model identifier to use for this request.
         """
 
         if response_model is not None:
@@ -41,9 +42,11 @@ class LLMClient:
         else:
             response_format = "auto"
 
+        model = model_override or self.config.llm_model
+
         try:
             response = self.client.chat.completions.create(
-                model=self.model,
+                model=model,
                 messages=[{"role": "user", "content": prompt}],
                 response_format=response_format,
             )
