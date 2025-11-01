@@ -1,7 +1,15 @@
 "use client";
 
 import { ChangeEvent, FormEvent } from "react";
-import { ToyBrick, RotateCcw, Search, Tag } from "lucide-react";
+import {
+  ToyBrick,
+  RotateCcw,
+  Search,
+  Tag,
+  FileUp,
+  Upload,
+  LoaderCircle,
+} from "lucide-react";
 
 import { IngestionStatus, KnowledgeDocument } from "../../types/dashboard";
 import { formatDateString, formatFileSize } from "../../utils/formatters";
@@ -197,11 +205,18 @@ export function KnowledgeBaseView({
               />
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <button
-                  className="flex items-center gap-2 rounded-xl bg-(--accent-violet) px-4 py-2 text-sm font-semibold text-(--accent-primary-strong) shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex h-11 w-11 items-center justify-center rounded-2xl text-(--accent-violet) transition hover:text-(--accent-primary) focus-visible:ring-2 focus-visible:ring-[rgba(168,85,247,0.25)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
                   type="submit"
                   disabled={urlState.pending}
                 >
-                  {urlState.pending ? "Ingesting…" : "Ingest URLs"}
+                  {urlState.pending ? (
+                    <LoaderCircle
+                      className="h-6 w-6 animate-spin"
+                      strokeWidth={2.5}
+                    />
+                  ) : (
+                    <Upload className="h-6 w-6" strokeWidth={2.3} />
+                  )}
                 </button>
                 {urlState.pending && (
                   <span className="text-sm text-(--text-muted)">
@@ -277,11 +292,18 @@ export function KnowledgeBaseView({
               )}
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <button
-                  className="flex items-center gap-2 rounded-xl bg-(--accent-violet) px-4 py-2 text-sm font-semibold text-(--accent-primary-strong) shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex h-11 w-11 items-center justify-center rounded-2xl text-(--accent-violet) transition hover:text-(--accent-primary) focus-visible:ring-2 focus-visible:ring-[rgba(168,85,247,0.25)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
                   type="submit"
                   disabled={pdfState.pending}
                 >
-                  {pdfState.pending ? "Uploading…" : "Ingest PDFs"}
+                  {pdfState.pending ? (
+                    <LoaderCircle
+                      className="h-6 w-6 animate-spin"
+                      strokeWidth={2.5}
+                    />
+                  ) : (
+                    <FileUp className="h-6 w-6" strokeWidth={2.3} />
+                  )}
                 </button>
                 {pdfState.pending && (
                   <span className="text-sm text-(--text-muted)">
