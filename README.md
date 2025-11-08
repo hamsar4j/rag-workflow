@@ -89,24 +89,36 @@ Regardless of entry point (UI or API), ingestion flows through the same stages:
    - Chat UI: <http://localhost:3000>
    - FastAPI docs: <http://localhost:8000/docs>
 
-2. In the chat, use the model dropdown to pick an LLM, then issue questions against your knowledge base. The UI forwards each prompt to `/query` with the selected model and renders the grounded answer.
+2. In the chat, use the model dropdown to pick an LLM, then issue questions against your knowledge base. The UI forwards each prompt to `/query` with the selected model and renders the grounded answer with interactive source citations.
 
 3. The system will:
    - Analyze your query
    - Retrieve relevant documents from the vector store
    - Optionally re-rank results for better quality
    - Generate a response based on the retrieved context
+   - Display source citations as hoverable tooltips in the chat interface
 
 ### API Access
 
 You can also interact with the RAG system programmatically via its API:
 
-- `POST /query` — Submit a question to the RAG system, optionally overriding the active model.
+- `POST /query` — Submit a question to the RAG system, optionally overriding the active model. Returns a structured response with text segments and source citations.
 
   ```bash
   curl -X POST "http://localhost:8000/query" \
        -H "Content-Type: application/json" \
        -d '{"query": "Your question here", "model": "deepseek-ai/DeepSeek-R1"}'
+  ```
+
+  Response format:
+
+  ```json
+  {
+    "segments": [
+      {"text": "Answer text here", "source": "https://example.com/source"},
+      {"text": " More text.", "source": null}
+    ]
+  }
   ```
 
 - `POST /ingest/web` — Provide a JSON body with `urls` to crawl and index web pages.
@@ -151,6 +163,7 @@ rag-workflow/
 │   │   │   └── pdf_loader/     # PDF document loading utilities
 │   │   ├── models/             # Data models
 │   │   ├── utils/              # Utility functions
+│   │   │   └── citation_parser.py  # Citation extraction from LLM responses
 │   │   └── workflow/           # RAG workflow implementation
 ├── frontend/                   # Next.js chat frontend
 ├── assets/                     # Images and documentation assets
@@ -166,6 +179,7 @@ rag-workflow/
 ## Features
 
 - **LangGraph RAG pipeline** that fuses retrieval and generation for grounded responses.
+- **Interactive source citations** with hover tooltips in the chat UI — cited text appears with a dotted underline, revealing the source URL on hover.
 - **Next.js chat UI + FastAPI API** for conversational oversight and programmatic access to the same workflow, including live LLM switching.
 - **Hybrid search** combining `intfloat/multilingual-e5-large-instruct` dense vectors with Qdrant BM25 sparse vectors via Reciprocal Rank Fusion (`src/app/db/vector_db.py`).
 - **Environment-driven configuration** covering models, retrieval parameters, and the optional Jina reranker switch.

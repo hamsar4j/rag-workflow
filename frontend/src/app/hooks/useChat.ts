@@ -49,19 +49,24 @@ export function useChat({ apiBase, model }: UseChatOptions) {
         throw new Error(`API returned status ${response.status}`);
       }
 
-      const payload = (await response.json()) as { answer?: string };
-      const answer = payload.answer?.trim();
+      const payload = (await response.json()) as {
+        segments?: { text: string; source: string | null }[];
+      };
 
-      if (!answer) {
-        throw new Error("RAG API responded without an answer payload.");
+      if (!payload.segments || payload.segments.length === 0) {
+        throw new Error("RAG API responded without segments payload.");
       }
+
+      // Reconstruct the full text from segments for backward compatibility
+      const fullText = payload.segments.map((seg) => seg.text).join("");
 
       setMessages((prev) => [
         ...prev,
         {
           id: createId(),
           role: "assistant",
-          content: answer,
+          content: fullText,
+          segments: payload.segments,
         },
       ]);
     } catch (err) {

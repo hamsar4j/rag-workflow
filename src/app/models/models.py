@@ -43,3 +43,16 @@ class IngestionResponse(BaseModel):
 
 class UpdateModelRequest(BaseModel):
     model: str = Field(..., description="LLM model identifier to activate.")
+
+
+class TextSegment(BaseModel):
+    """A text segment with optional source citation."""
+
+    text: str
+    source: str | None = None
+
+
+class QueryResponse(BaseModel):
+    """Structured response with text segments and sources for hover citations."""
+
+    segments: list[TextSegment]

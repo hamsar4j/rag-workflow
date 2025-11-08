@@ -100,7 +100,30 @@ export function ChatView({
                 <p className="mb-1 text-xs font-medium tracking-wide text-(--text-muted) uppercase">
                   {message.role === "user" ? "You" : "Agent"}
                 </p>
-                <p className="whitespace-pre-line">{message.content}</p>
+                {message.role === "assistant" && message.segments ? (
+                  <p className="whitespace-pre-line">
+                    {message.segments.map((segment, idx) =>
+                      segment.source ? (
+                        <span
+                          key={idx}
+                          className="group relative cursor-help border-b border-dotted border-(--accent-violet) hover:border-(--accent-primary)"
+                        >
+                          {segment.text}
+                          <span className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 hidden w-max max-w-md -translate-x-1/2 rounded-lg border border-(--border-subtle) bg-(--surface-panel) px-3 py-2 text-xs text-(--text-primary) shadow-lg group-hover:block">
+                            <span className="block break-all">
+                              {segment.source}
+                            </span>
+                            <span className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-(--surface-panel)" />
+                          </span>
+                        </span>
+                      ) : (
+                        <span key={idx}>{segment.text}</span>
+                      ),
+                    )}
+                  </p>
+                ) : (
+                  <p className="whitespace-pre-line">{message.content}</p>
+                )}
               </div>
             </div>
           ))}

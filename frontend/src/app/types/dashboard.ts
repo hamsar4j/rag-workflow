@@ -1,9 +1,15 @@
 export type TabKey = "chat" | "knowledge-base";
 
+export type TextSegment = {
+  text: string;
+  source: string | null;
+};
+
 export type ChatMessage = {
   id: string;
   role: "user" | "assistant";
   content: string;
+  segments?: TextSegment[];
 };
 
 export type IngestionResponse = {

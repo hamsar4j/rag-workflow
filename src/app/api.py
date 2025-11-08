@@ -16,9 +16,11 @@ from app.models.models import (
     IngestionResponse,
     IngestWebRequest,
     QueryRequest,
+    QueryResponse,
     UpdateModelRequest,
 )
 from app.workflow import build_rag_workflow
+from app.utils.citation_parser import parse_citations
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -81,7 +83,7 @@ async def log_requests(request: Request, call_next):
     return response
 
 
-@app.post("/query")
+@app.post("/query", response_model=QueryResponse)
 async def run_query(request: QueryRequest):
     """Process a query request through the RAG workflow."""
     # Log the incoming request
@@ -104,10 +106,13 @@ async def run_query(request: QueryRequest):
         response = rag_workflow.invoke(state, config=config)
         answer = response["answer"]
 
+        # Parse citations from the answer
+        segments = parse_citations(answer)
+
         # Log successful response
         logger.info(f"Successfully processed query: {request.query}")
 
-        return {"answer": answer}
+        return QueryResponse(segments=segments)
     except Exception as e:
         logger.error(f"Error during RAG workflow invocation: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"RAG workflow failed: {str(e)}")
