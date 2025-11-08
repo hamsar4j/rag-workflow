@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent } from "react";
+import { FormEvent, useEffect, useRef } from "react";
 import { LoaderCircle, SendHorizontal } from "lucide-react";
 import { ChatMessage } from "../../types/dashboard";
 
@@ -24,6 +24,12 @@ export function ChatView({
   modelName,
 }: ChatViewProps) {
   const hasMessages = messages.length > 0;
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, pending]);
 
   const baseButtonClasses =
     "flex items-center justify-center rounded-2xl text-(--accent-violet) transition hover:text-(--accent-primary) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(168,85,247,0.25)] disabled:cursor-not-allowed disabled:opacity-60";
@@ -137,6 +143,7 @@ export function ChatView({
               </div>
             </div>
           )}
+          <div ref={messagesEndRef} />
         </div>
       </div>
 

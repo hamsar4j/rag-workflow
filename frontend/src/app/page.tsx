@@ -185,7 +185,7 @@ export default function Home() {
   );
 
   return (
-    <div className="flex min-h-screen bg-(--surface-base) text-(--text-primary)">
+    <div className="flex h-screen bg-(--surface-base) text-(--text-primary)">
       <Sidebar
         activeTab={activeTab}
         onTabChange={setActiveTab}
@@ -193,12 +193,12 @@ export default function Home() {
         documentCount={documents.length}
       />
 
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col overflow-hidden">
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-(--border-subtle) bg-(--surface-panel) px-6 py-5 lg:px-10">
           {activeTab === "knowledge-base" ? knowledgeHeader : chatHeader}
         </header>
 
-        <main className="flex-1">
+        <main className="flex-1 overflow-hidden">
           {activeTab === "chat" ? (
             <ChatView
               messages={messages}
