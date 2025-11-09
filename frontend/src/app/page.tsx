@@ -140,7 +140,6 @@ export default function Home() {
         }
         return [...prev, { value: appliedModel, label: appliedModel }];
       });
-      resetConversation();
     } catch (error) {
       console.error("Failed to update model", error);
       setModel(previousModel);
