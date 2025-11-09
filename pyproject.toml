@@ -17,6 +17,7 @@ dependencies = [
     "python-dotenv>=1.1.1",
     "qdrant-client>=1.15.1",
     "rich>=14.2.0",
+    "sqlalchemy>=2.0.0",
     "unstructured[md]>=0.18.15",
 ]
 

@@ -12,4 +12,8 @@ dense_embeddings.pkl
 # Build
 src/rag_workflow.egg-info/
 
+# Markdown files
 TODO.md
+
+# DB
+data

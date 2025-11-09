@@ -1,14 +1,20 @@
 "use client";
 
 import type { ComponentType } from "react";
-import { TabKey } from "../types/dashboard";
+import { TabKey, ChatSession } from "../types/dashboard";
 import { BookCopy, BotMessageSquare } from "lucide-react";
+import { ChatList } from "./chat/chat-list";
 
 type SidebarProps = {
   activeTab: TabKey;
   onTabChange: (tab: TabKey) => void;
   usagePercent: number;
   documentCount: number;
+  chats?: ChatSession[];
+  activeChatId?: string | null;
+  onSelectChat?: (chatId: string) => void;
+  onNewChat?: () => void;
+  onDeleteChat?: (chatId: string) => void;
 };
 
 type NavItem = {
@@ -28,10 +34,22 @@ export function Sidebar({
   onTabChange,
   usagePercent,
   documentCount,
+  chats,
+  activeChatId,
+  onSelectChat,
+  onNewChat,
+  onDeleteChat,
 }: SidebarProps) {
+  const showChatList =
+    activeTab === "chat" &&
+    chats &&
+    onSelectChat &&
+    onNewChat &&
+    onDeleteChat;
+
   return (
     <aside className="flex w-20 flex-col border-r border-(--border-subtle) bg-(--surface-muted) px-3 py-6 text-(--text-secondary) lg:w-64">
-      <nav className="flex-1 space-y-1">
+      <nav className="space-y-1">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive = item.id === activeTab;
@@ -67,6 +85,18 @@ export function Sidebar({
           );
         })}
       </nav>
+
+      {showChatList && (
+        <div className="mt-6 hidden flex-col gap-2 overflow-hidden lg:flex lg:flex-1">
+          <ChatList
+            chats={chats}
+            activeChatId={activeChatId || null}
+            onSelectChat={onSelectChat}
+            onNewChat={onNewChat}
+            onDeleteChat={onDeleteChat}
+          />
+        </div>
+      )}
 
       <div className="mt-6 hidden flex-col gap-3 rounded-2xl border border-(--border-subtle) bg-(--surface-muted) px-4 py-3 text-xs text-(--text-muted) lg:flex">
         <div className="flex items-center justify-between">

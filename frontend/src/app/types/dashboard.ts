@@ -10,6 +10,23 @@ export type ChatMessage = {
   role: "user" | "assistant";
   content: string;
   segments?: TextSegment[];
+  created_at?: string;
+};
+
+export type ChatSession = {
+  id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+  message_count: number;
+};
+
+export type ChatWithMessages = {
+  id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+  messages: ChatMessage[];
 };
 
 export type IngestionResponse = {

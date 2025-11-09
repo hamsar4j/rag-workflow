@@ -6,6 +6,7 @@ import { ModelSelect, type ModelOption } from "./components/chat/model-select";
 import { KnowledgeBaseView } from "./components/knowledge/knowledge-base-view";
 import { Sidebar } from "./components/sidebar";
 import { useChat } from "./hooks/useChat";
+import { useChats } from "./hooks/useChats";
 import { useKnowledgeBase } from "./hooks/useKnowledgeBase";
 import { TabKey } from "./types/dashboard";
 
@@ -15,6 +16,7 @@ const API_BASE =
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<TabKey>("chat");
+  const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [modelOptions, setModelOptions] = useState<ModelOption[]>([
     {
       label: "kimi-k2-instruct-0905",
@@ -26,7 +28,10 @@ export default function Home() {
   const [modelError, setModelError] = useState<string | null>(null);
   const [isModelUpdating, setIsModelUpdating] = useState(false);
 
+  const { chats, fetchChats, deleteChat } = useChats({ apiBase: API_BASE });
+
   const {
+    chatId,
     messages,
     pending: chatPending,
     error: chatError,
@@ -34,8 +39,18 @@ export default function Home() {
     setInput: setChatInput,
     setError: setChatError,
     handleSubmit: handleChatSubmit,
+    loadChat,
+    startNewChat,
     resetConversation,
-  } = useChat({ apiBase: API_BASE, model });
+  } = useChat({
+    apiBase: API_BASE,
+    model,
+    chatId: activeChatId,
+    onChatCreated: (newChatId) => {
+      setActiveChatId(newChatId);
+      fetchChats();
+    },
+  });
 
   const {
     documents,
@@ -138,6 +153,23 @@ export default function Home() {
     }
   };
 
+  const handleSelectChat = async (selectedChatId: string) => {
+    setActiveChatId(selectedChatId);
+    await loadChat(selectedChatId);
+  };
+
+  const handleNewChat = () => {
+    setActiveChatId(null);
+    startNewChat();
+  };
+
+  const handleDeleteChat = async (chatId: string) => {
+    const success = await deleteChat(chatId);
+    if (success && chatId === activeChatId) {
+      handleNewChat();
+    }
+  };
+
   const activeModelLabel =
     modelOptions.find((option) => option.value === model)?.label ?? model;
 
@@ -191,6 +223,11 @@ export default function Home() {
         onTabChange={setActiveTab}
         usagePercent={usagePercent}
         documentCount={documents.length}
+        chats={chats}
+        activeChatId={activeChatId}
+        onSelectChat={handleSelectChat}
+        onNewChat={handleNewChat}
+        onDeleteChat={handleDeleteChat}
       />
 
       <div className="flex flex-1 flex-col overflow-hidden">

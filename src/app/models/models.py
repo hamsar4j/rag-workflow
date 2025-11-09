@@ -27,6 +27,7 @@ class State(TypedDict):
 
 class QueryRequest(BaseModel):
     query: str
+    chat_id: str | None = None
     model: str | None = None
     config: dict[str, Any] = {"configurable": {"thread_id": "abc123"}}
 
@@ -55,4 +56,47 @@ class TextSegment(BaseModel):
 class QueryResponse(BaseModel):
     """Structured response with text segments and sources for hover citations."""
 
+    chat_id: str
     segments: list[TextSegment]
+
+
+class CreateChatRequest(BaseModel):
+    """Request to create a new chat session."""
+
+    title: str | None = None
+
+
+class ChatSessionResponse(BaseModel):
+    """Response model for a chat session."""
+
+    id: str
+    title: str
+    created_at: str
+    updated_at: str
+    message_count: int = 0
+
+    model_config = {"from_attributes": True}
+
+
+class ChatMessageResponse(BaseModel):
+    """Response model for a chat message."""
+
+    id: str
+    role: str
+    content: str
+    segments: list[TextSegment] | None = None
+    created_at: str
+
+    model_config = {"from_attributes": True}
+
+
+class ChatWithMessagesResponse(BaseModel):
+    """Response model for a chat session with its messages."""
+
+    id: str
+    title: str
+    created_at: str
+    updated_at: str
+    messages: list[ChatMessageResponse]
+
+    model_config = {"from_attributes": True}

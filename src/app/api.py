@@ -13,6 +13,9 @@ from app.ingestion.ingest import load_documents
 from app.ingestion.pdf_loader.pdf_to_text import extract_text_from_pdf
 from app.ingestion.service import ingest_text_documents
 from app.models.models import (
+    ChatSessionResponse,
+    ChatWithMessagesResponse,
+    CreateChatRequest,
     IngestionResponse,
     IngestWebRequest,
     QueryRequest,
@@ -21,6 +24,8 @@ from app.models.models import (
 )
 from app.workflow import build_rag_workflow
 from app.utils.citation_parser import parse_citations
+from app.db.chat_db import ChatDB
+from app.utils.id import create_id
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -28,21 +33,26 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.getLogger("httpcore").setLevel(logging.WARNING)
 
 rag_workflow = None
+chat_db = None
 ALLOWED_PDF_CONTENT_TYPES = {"application/pdf", "application/octet-stream"}
 QDRANT_COLLECTION = settings.qdrant_collection_name
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global rag_workflow
+    global rag_workflow, chat_db
     try:
         rag_workflow = build_rag_workflow()
         logger.info("RAG workflow initialized successfully")
+
+        chat_db = ChatDB()
+        logger.info("Chat database initialized successfully")
+
         yield
     except Exception as e:
-        logger.error(f"Error initializing RAG workflow: {e}")
+        logger.error(f"Error initializing application: {e}")
         raise HTTPException(
-            status_code=500, detail=f"Failed to initialize RAG workflow: {str(e)}"
+            status_code=500, detail=f"Failed to initialize application: {str(e)}"
         )
 
 
@@ -90,17 +100,39 @@ async def run_query(request: QueryRequest):
     logger.info(f"Processing query: {request.query}")
 
     if rag_workflow is None:
-        logger.error("RAG workflow not initialized")
         raise HTTPException(status_code=500, detail="RAG workflow not initialized")
 
+    if chat_db is None:
+        raise HTTPException(status_code=500, detail="Chat database not initialized")
+
     try:
+        # Get or create chat session
+        chat_id = request.chat_id
+        if not chat_id:
+            # Create a new chat session with a title from the first query
+            chat_id = create_id()
+            title = request.query[:50] + ("..." if len(request.query) > 50 else "")
+            chat_db.create_chat(chat_id=chat_id, title=title)
+            logger.info(f"Created new chat session: {chat_id}")
+
+        # Save user message
+        user_message_id = create_id()
+        chat_db.add_message(
+            message_id=user_message_id,
+            chat_id=chat_id,
+            role="user",
+            content=request.query,
+            segments=None,
+        )
+
         selected_model = request.model or settings.llm_model
         if request.model and request.model != settings.llm_model:
             os.environ["LLM_MODEL"] = request.model
             settings.llm_model = request.model
 
         state = {"question": request.query, "model": selected_model}
-        config = request.config if request.config else {}
+        # Use chat_id as thread_id for LangGraph checkpointing
+        config = {"configurable": {"thread_id": chat_id}}
 
         # Process the query through the RAG workflow
         response = rag_workflow.invoke(state, config=config)
@@ -109,10 +141,21 @@ async def run_query(request: QueryRequest):
         # Parse citations from the answer
         segments = parse_citations(answer)
 
-        # Log successful response
-        logger.info(f"Successfully processed query: {request.query}")
+        # Save assistant message
+        assistant_message_id = create_id()
+        full_text = "".join([seg.text for seg in segments])
+        chat_db.add_message(
+            message_id=assistant_message_id,
+            chat_id=chat_id,
+            role="assistant",
+            content=full_text,
+            segments=[{"text": seg.text, "source": seg.source} for seg in segments],
+        )
 
-        return QueryResponse(segments=segments)
+        # Log successful response
+        logger.info(f"Successfully processed query in chat {chat_id}")
+
+        return QueryResponse(chat_id=chat_id, segments=segments)
     except Exception as e:
         logger.error(f"Error during RAG workflow invocation: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"RAG workflow failed: {str(e)}")
@@ -279,6 +322,98 @@ async def ingest_pdf(files: list[UploadFile] = File(...)):
         raise HTTPException(status_code=400, detail=detail)
 
     return await _ingest_documents(preprocessed, warnings)
+
+
+@app.post("/chats", response_model=ChatSessionResponse)
+async def create_chat(request: CreateChatRequest):
+    """Create a new chat session."""
+    if chat_db is None:
+        raise HTTPException(status_code=500, detail="Chat database not initialized")
+
+    chat_id = create_id()
+    title = request.title or "New Chat"
+
+    chat = chat_db.create_chat(chat_id=chat_id, title=title)
+
+    return ChatSessionResponse(
+        id=chat.id,
+        title=chat.title,
+        created_at=chat.created_at.isoformat(),
+        updated_at=chat.updated_at.isoformat(),
+        message_count=0,
+    )
+
+
+@app.get("/chats", response_model=list[ChatSessionResponse])
+async def list_chats():
+    """List all chat sessions."""
+    if chat_db is None:
+        raise HTTPException(status_code=500, detail="Chat database not initialized")
+
+    chats = chat_db.list_chats()
+
+    return [
+        ChatSessionResponse(
+            id=chat.id,
+            title=chat.title,
+            created_at=chat.created_at.isoformat(),
+            updated_at=chat.updated_at.isoformat(),
+            message_count=len(chat.messages),
+        )
+        for chat in chats
+    ]
+
+
+@app.get("/chats/{chat_id}", response_model=ChatWithMessagesResponse)
+async def get_chat(chat_id: str):
+    """Get a chat session with all its messages."""
+    if chat_db is None:
+        raise HTTPException(status_code=500, detail="Chat database not initialized")
+
+    chat = chat_db.get_chat(chat_id)
+    if not chat:
+        raise HTTPException(status_code=404, detail=f"Chat {chat_id} not found")
+
+    from app.models.models import ChatMessageResponse, TextSegment
+
+    messages = [
+        ChatMessageResponse(
+            id=msg.id,
+            role=msg.role,
+            content=msg.content,
+            segments=(
+                [
+                    TextSegment(text=seg["text"], source=seg.get("source"))
+                    for seg in (msg.segments or [])
+                ]
+                if msg.segments
+                else None
+            ),
+            created_at=msg.created_at.isoformat(),
+        )
+        for msg in chat.messages
+    ]
+
+    return ChatWithMessagesResponse(
+        id=chat.id,
+        title=chat.title,
+        created_at=chat.created_at.isoformat(),
+        updated_at=chat.updated_at.isoformat(),
+        messages=messages,
+    )
+
+
+@app.delete("/chats/{chat_id}")
+async def delete_chat(chat_id: str):
+    """Delete a chat session."""
+    if chat_db is None:
+        raise HTTPException(status_code=500, detail="Chat database not initialized")
+
+    deleted = chat_db.delete_chat(chat_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail=f"Chat {chat_id} not found")
+
+    return {"message": f"Chat {chat_id} deleted successfully"}
 
 
 @app.get("/health")
