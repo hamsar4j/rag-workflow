@@ -86,8 +86,8 @@ export function ChatView({
   }
 
   return (
-    <section className="flex h-full flex-col">
-      <div className="flex-1 overflow-y-auto px-6 py-8 lg:px-10">
+    <section className="relative flex h-full flex-col">
+      <div className="flex-1 overflow-y-auto px-6 py-8 pb-32 lg:px-10">
         <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
           {messages.map((message) => (
             <div
@@ -147,28 +147,26 @@ export function ChatView({
         </div>
       </div>
 
-      <form
-        className="border-t border-(--border-subtle) bg-(--surface-panel) px-6 py-5 lg:px-10"
-        onSubmit={onSubmit}
-      >
-        <div className="mx-auto flex w-full max-w-3xl flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="relative flex-1">
-            <input
-              className="w-full rounded-2xl border border-(--border-subtle) bg-(--surface-muted) px-4 py-3 text-sm text-(--text-primary) shadow-sm transition placeholder:text-(--text-muted) focus:border-[rgba(168,85,247,0.45)] focus:bg-(--surface-panel) focus:ring-2 focus:ring-[rgba(168,85,247,0.25)] focus:outline-none"
-              type="text"
-              placeholder="Ask about sources, ingestion status, or response quality…"
-              value={input}
-              onChange={(event) => onInputChange(event.target.value)}
-            />
-          </div>
-          {renderSubmitButton("regular")}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-(--surface-base) to-transparent pt-8 pb-5">
+        <div className="pointer-events-auto px-6 lg:px-10">
+          <form className="mx-auto w-full max-w-3xl" onSubmit={onSubmit}>
+            <div className="flex items-center gap-3 rounded-3xl border border-(--border-subtle) bg-(--surface-panel) px-6 py-4 shadow-lg shadow-black/10 transition focus-within:border-[rgba(168,85,247,0.45)] focus-within:ring-2 focus-within:ring-[rgba(168,85,247,0.25)]">
+              <input
+                className="flex-1 bg-transparent text-sm text-(--text-primary) placeholder:text-(--text-muted) focus:outline-none"
+                type="text"
+                placeholder="Ask anything about your documents"
+                value={input}
+                onChange={(event) => onInputChange(event.target.value)}
+                disabled={pending}
+              />
+              {renderSubmitButton("regular")}
+            </div>
+            {error && (
+              <p className="mt-2 text-center text-sm text-(--error)">{error}</p>
+            )}
+          </form>
         </div>
-        {error && (
-          <p className="mx-auto mt-2 w-full max-w-3xl text-sm text-(--error)">
-            {error}
-          </p>
-        )}
-      </form>
+      </div>
     </section>
   );
 }
