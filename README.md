@@ -12,11 +12,12 @@ This project implements a Retrieval-Augmented Generation (RAG) workflow for buil
 
 The application follows a modular architecture with the following components:
 
-1. **Frontend**: Next.js chat interface (`frontend/`) for live chat supervision
+1. **Frontend**: Next.js chat interface (`frontend/`) for live chat supervision with multi-chat support
 2. **Backend**: FastAPI server exposing REST endpoints
 3. **Workflow Engine**: LangGraph-powered RAG pipeline with multiple stages
 4. **Vector Store**: Qdrant for efficient similarity search
-5. **AI Models**:
+5. **Chat Persistence**: SQLite database for storing chat sessions and message history
+6. **AI Models**:
    - Dense Embeddings: intfloat/multilingual-e5-large-instruct via Together AI
    - Sparse Embeddings: Qdrant/bm25
    - Generation: moonshotai/Kimi-K2-Instruct-0905 via Together AI
@@ -89,7 +90,7 @@ Regardless of entry point (UI or API), ingestion flows through the same stages:
    - Chat UI: <http://localhost:3000>
    - FastAPI docs: <http://localhost:8000/docs>
 
-2. In the chat, use the model dropdown to pick an LLM, then issue questions against your knowledge base. The UI forwards each prompt to `/query` with the selected model and renders the grounded answer with interactive source citations.
+2. In the chat, use the model dropdown to pick an LLM, then issue questions against your knowledge base. The UI forwards each prompt to `/query` with the selected model and renders the grounded answer with interactive source citations. Your conversation is automatically saved to the database.
 
 3. The system will:
    - Analyze your query
@@ -97,23 +98,32 @@ Regardless of entry point (UI or API), ingestion flows through the same stages:
    - Optionally re-rank results for better quality
    - Generate a response based on the retrieved context
    - Display source citations as hoverable tooltips in the chat interface
+   - Save both your question and the assistant's response to the chat database
+
+4. Use the **chat history sidebar** to:
+   - View all your conversations (ordered by recent activity)
+   - Switch between different chat sessions
+   - Start a new conversation with the "New Chat" button
+   - Delete conversations you no longer need (hover over a chat to reveal the delete button)
+   - Chat history persists across browser refreshes and server restarts
 
 ### API Access
 
 You can also interact with the RAG system programmatically via its API:
 
-- `POST /query` — Submit a question to the RAG system, optionally overriding the active model. Returns a structured response with text segments and source citations.
+- `POST /query` — Submit a question to the RAG system, optionally overriding the active model and chat session. Returns a structured response with text segments and source citations. If no `chat_id` is provided, a new chat session is automatically created.
 
   ```bash
   curl -X POST "http://localhost:8000/query" \
        -H "Content-Type: application/json" \
-       -d '{"query": "Your question here", "model": "deepseek-ai/DeepSeek-R1"}'
+       -d '{"query": "Your question here", "chat_id": "existing-chat-id", "model": "deepseek-ai/DeepSeek-R1"}'
   ```
 
   Response format:
 
   ```json
   {
+    "chat_id": "abc-123-def-456",
     "segments": [
       {"text": "Answer text here", "source": "https://example.com/source"},
       {"text": " More text.", "source": null}
@@ -146,6 +156,32 @@ You can also interact with the RAG system programmatically via its API:
        -d '{"model": "moonshotai/Kimi-K2-Instruct-0905"}'
   ```
 
+- `POST /chats` — Create a new chat session with an optional custom title.
+
+  ```bash
+  curl -X POST "http://localhost:8000/chats" \
+       -H "Content-Type: application/json" \
+       -d '{"title": "My Custom Chat Title"}'
+  ```
+
+- `GET /chats` — List all chat sessions, ordered by most recent activity.
+
+  ```bash
+  curl "http://localhost:8000/chats"
+  ```
+
+- `GET /chats/{chat_id}` — Get a specific chat session with all its messages.
+
+  ```bash
+  curl "http://localhost:8000/chats/abc-123-def-456"
+  ```
+
+- `DELETE /chats/{chat_id}` — Delete a chat session and all its messages.
+
+  ```bash
+  curl -X DELETE "http://localhost:8000/chats/abc-123-def-456"
+  ```
+
 - `GET /health` — Health check endpoint (includes the active Qdrant collection name).
 
 ## Project Structure
@@ -156,14 +192,17 @@ rag-workflow/
 │   ├── app/
 │   │   ├── api.py              # FastAPI server
 │   │   ├── core/               # Configuration
-│   │   ├── db/                 # Database integration (Qdrant)
+│   │   ├── db/                 # Database integration
+│   │   │   ├── vector_db.py    # Qdrant vector database client
+│   │   │   └── chat_db.py      # SQLite chat persistence (SQLAlchemy)
 │   │   ├── ingestion/          # Data ingestion utilities
 │   │   │   ├── ingest.py       # Core ingestion functions
 │   │   │   ├── web_loader/     # Web document loading utilities
 │   │   │   └── pdf_loader/     # PDF document loading utilities
 │   │   ├── models/             # Data models
 │   │   ├── utils/              # Utility functions
-│   │   │   └── citation_parser.py  # Citation extraction from LLM responses
+│   │   │   ├── citation_parser.py  # Citation extraction from LLM responses
+│   │   │   └── id.py           # ID generation utility
 │   │   └── workflow/           # RAG workflow implementation
 ├── frontend/                   # Next.js chat frontend
 ├── assets/                     # Images and documentation assets
@@ -179,8 +218,10 @@ rag-workflow/
 ## Features
 
 - **LangGraph RAG pipeline** that fuses retrieval and generation for grounded responses.
+- **Multi-chat persistence** with SQLite database — chat sessions and messages are automatically saved and restored across browser refreshes and server restarts.
 - **Interactive source citations** with hover tooltips in the chat UI — cited text appears with a dotted underline, revealing the source URL on hover.
 - **Next.js chat UI + FastAPI API** for conversational oversight and programmatic access to the same workflow, including live LLM switching.
+- **Chat history sidebar** — view, switch between, and manage multiple conversations with automatic title generation and delete functionality.
 - **Hybrid search** combining `intfloat/multilingual-e5-large-instruct` dense vectors with Qdrant BM25 sparse vectors via Reciprocal Rank Fusion (`src/app/db/vector_db.py`).
 - **Environment-driven configuration** covering models, retrieval parameters, and the optional Jina reranker switch.
 - **Flexible ingestion CLI** for URLs/PDFs with chunk controls and caching to avoid reprocessing.

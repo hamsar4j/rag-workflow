@@ -39,6 +39,11 @@ Copy `.env.example` to `.env` and populate required API keys:
 - `EMBEDDINGS_API_KEY` for embedding model (default: Together AI)
 - `RERANKING_API_KEY` (optional, for Jina reranker when `ENABLE_RERANKER=true`)
 
+**Data Storage**:
+- Qdrant vector database runs in Docker (configured in `docker-compose.yaml`)
+- Chat history stored in SQLite database at `data/chats.db` (auto-created on first run)
+- Both databases persist across server restarts
+
 ## Architecture
 
 ### RAG Workflow Pipeline (LangGraph)
@@ -73,13 +78,17 @@ All ingestion goes through `src/app/ingestion/service.py` which wraps the pipeli
 ### FastAPI Server Structure
 
 `src/app/api.py` exposes REST endpoints:
-- `POST /query`: Main RAG query endpoint (accepts optional `model` override)
+- `POST /query`: Main RAG query endpoint (accepts optional `model` and `chat_id`; auto-creates chats if none provided)
+- `POST /chats`: Create new chat session with optional title
+- `GET /chats`: List all chat sessions (ordered by recent activity)
+- `GET /chats/{chat_id}`: Get chat with full message history
+- `DELETE /chats/{chat_id}`: Delete chat and all messages
 - `GET/POST /settings/model`: Get/update active LLM model (persists in-memory via `settings.llm_model`)
 - `POST /ingest/web`: Ingest URLs (validates content, filters errors)
 - `POST /ingest/pdf`: Ingest PDF uploads (content-type validation)
 - `GET /health`: Health check with Qdrant collection name
 
-The workflow is initialized once at startup via `lifespan` context manager and stored in a global `rag_workflow` variable.
+The workflow and chat database are initialized once at startup via `lifespan` context manager and stored in global variables (`rag_workflow`, `chat_db`).
 
 ### Citation Parsing
 
@@ -98,14 +107,42 @@ Parsed segments: [
 ]
 ```
 
+### Chat Persistence
+
+Multi-chat support with SQLite database implemented in `src/app/db/chat_db.py`:
+- **Database**: SQLite with SQLAlchemy ORM (stored at `data/chats.db`)
+- **Models**:
+  - `ChatSession`: id, title, created_at, updated_at (relationship to messages)
+  - `ChatMessage`: id, chat_id, role, content, segments (JSON), created_at
+- **Operations**: `ChatDB` class provides CRUD operations with eager loading via `joinedload()` to prevent detached instance errors
+- **Auto-save**: `/query` endpoint saves both user and assistant messages to database
+- **Thread integration**: Uses `chat_id` as LangGraph `thread_id` for conversation threading
+- **Title generation**: First query (truncated to 50 chars) becomes the chat title
+
+Key implementation details:
+- Messages eagerly loaded using `.options(joinedload(ChatSession.messages))` to avoid SQLAlchemy detachment errors
+- `session.expunge()` used to detach objects after loading all relationships
+- UUID-based chat and message IDs via `src/app/utils/id.py`
+- Cascade delete configured so deleting a chat removes all its messages
+
 ### Frontend Integration
 
 Next.js 15 app in `frontend/` with:
-- Chat interface that proxies to `/query` endpoint
+- Chat interface that proxies to `/query` endpoint with `chat_id` tracking
+- Chat history sidebar (visible when on Chat tab) with:
+  - "New Chat" button to start fresh conversations
+  - List of chat sessions with titles and message counts
+  - Active chat highlighting
+  - Delete functionality (hover to reveal delete button)
 - Model selection dropdown (syncs via `/settings/model`)
 - Knowledge Base tab for PDF uploads
 - Interactive source citations with hover tooltips (cited text shows dotted underline, reveals URL on hover)
 - Environment variable `NEXT_PUBLIC_RAG_API` for backend URL (defaults to `http://localhost:8000`)
+
+**Hooks**:
+- `useChats` (`hooks/useChats.ts`): Manages chat list, creation, deletion, fetching
+- `useChat` (`hooks/useChat.ts`): Handles current chat state, message sending, chat loading, with callbacks for chat creation
+- State synchronization: When backend creates a new chat, `onChatCreated` callback updates frontend state and refreshes chat list
 
 ## Configuration Management
 
