@@ -6,10 +6,11 @@ from app.models.models import TextSegment
 
 def parse_citations(text: str) -> list[TextSegment]:
     """
-    Parse text with inline citations in the format [url] and return structured segments.
+    Parse text with inline citations in the format [url] or [source: url] and return structured segments.
+    Consecutive segments with the same source are automatically merged.
 
     Example input:
-        "ASD is the Architecture pillar[https://example.com]. The ISTD tracks are AI[https://example2.com]."
+        "ASD is the Architecture pillar[https://example.com]. The ISTD tracks are AI[source: https://example2.com]."
 
     Example output:
         [
@@ -19,19 +20,19 @@ def parse_citations(text: str) -> list[TextSegment]:
         ]
 
     Args:
-        text: The text with inline citations in square brackets
+        text: The text with inline citations in square brackets (supports both [url] and [source: url] formats)
 
     Returns:
-        List of TextSegment objects with text and optional source
+        List of TextSegment objects with text and optional source (merged when consecutive segments share the same source)
     """
     if not text:
         return [TextSegment(text="", source=None)]
 
     segments: list[TextSegment] = []
 
-    # Pattern to match citations: [url]
+    # Pattern to match citations: [url] or [source: url]
     # This captures text before citation and the URL inside brackets
-    pattern = r"(.*?)\[(https?://[^\]]+)\]"
+    pattern = r"(.*?)\[(?:source:\s*)?(https?://[^\]]+)\]"
 
     last_end = 0
 
@@ -53,4 +54,15 @@ def parse_citations(text: str) -> list[TextSegment]:
     if not segments:
         segments.append(TextSegment(text=text, source=None))
 
-    return segments
+    # Merge consecutive segments with the same source
+    merged_segments: list[TextSegment] = []
+    for segment in segments:
+        if merged_segments and merged_segments[-1].source == segment.source:
+            # Merge with previous segment if they have the same source
+            merged_segments[-1] = TextSegment(
+                text=merged_segments[-1].text + segment.text, source=segment.source
+            )
+        else:
+            merged_segments.append(segment)
+
+    return merged_segments

@@ -23,6 +23,8 @@ export default function Home() {
       value: "moonshotai/Kimi-K2-Instruct-0905",
     },
     { label: "gpt-oss-120b", value: "openai/gpt-oss-120b" },
+    { label: "glm-4.6", value: "zai-org/GLM-4.6" },
+    { label: "deepseek-v3.1", value: "deepseek-ai/DeepSeek-V3.1" },
   ]);
   const [model, setModel] = useState<string>(modelOptions[0]?.value ?? "");
   const [modelError, setModelError] = useState<string | null>(null);
@@ -31,7 +33,6 @@ export default function Home() {
   const { chats, fetchChats, deleteChat } = useChats({ apiBase: API_BASE });
 
   const {
-    chatId,
     messages,
     pending: chatPending,
     error: chatError,
@@ -41,7 +42,6 @@ export default function Home() {
     handleSubmit: handleChatSubmit,
     loadChat,
     startNewChat,
-    resetConversation,
   } = useChat({
     apiBase: API_BASE,
     model,

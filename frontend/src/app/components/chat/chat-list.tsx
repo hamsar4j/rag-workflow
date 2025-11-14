@@ -53,7 +53,7 @@ export function ChatList({
                 onClick={() => onSelectChat(chat.id)}
                 className="flex flex-1 items-center gap-2 overflow-hidden text-left"
               >
-                <MessageSquare className="h-4 w-4 flex-shrink-0" strokeWidth={2} />
+                <MessageSquare className="h-4 w-4 shrink-0" strokeWidth={2} />
                 <span className="truncate font-medium">{chat.title}</span>
               </button>
               <button
@@ -61,7 +61,7 @@ export function ChatList({
                   e.stopPropagation();
                   onDeleteChat(chat.id);
                 }}
-                className="opacity-0 transition hover:text-(--error) group-hover:opacity-100"
+                className="opacity-0 transition group-hover:opacity-100 hover:text-(--error)"
                 aria-label="Delete chat"
               >
                 <Trash2 className="h-3.5 w-3.5" strokeWidth={2} />

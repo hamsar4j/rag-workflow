@@ -112,7 +112,7 @@ export function ChatView({
                       segment.source ? (
                         <span
                           key={idx}
-                          className="group relative cursor-help border-b border-dotted border-(--accent-violet) hover:border-(--accent-primary)"
+                          className="group relative cursor-help border-b border-dotted border-(--accent-violet) transition-colors hover:border-(--accent-primary) hover:bg-[rgba(168,85,247,0.2)]"
                         >
                           {segment.text}
                           <span className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 hidden w-max max-w-md -translate-x-1/2 rounded-lg border border-(--border-subtle) bg-(--surface-panel) px-3 py-2 text-xs text-(--text-primary) shadow-lg group-hover:block">
