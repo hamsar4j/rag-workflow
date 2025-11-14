@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { MessageSquare, Plus, Trash2 } from "lucide-react";
 import { ChatSession } from "../../types/dashboard";
+import { ConfirmDialog } from "../confirm-dialog";
 
 type ChatListProps = {
   chats: ChatSession[];
@@ -18,7 +20,25 @@ export function ChatList({
   onNewChat,
   onDeleteChat,
 }: ChatListProps) {
+  const [chatToDelete, setChatToDelete] = useState<ChatSession | null>(null);
+
+  const handleDeleteClick = (chat: ChatSession) => {
+    setChatToDelete(chat);
+  };
+
+  const handleConfirmDelete = () => {
+    if (chatToDelete) {
+      onDeleteChat(chatToDelete.id);
+      setChatToDelete(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setChatToDelete(null);
+  };
+
   return (
+    <>
     <div className="flex min-h-0 flex-1 flex-col gap-2">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-(--text-primary)">
@@ -59,7 +79,7 @@ export function ChatList({
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  onDeleteChat(chat.id);
+                  handleDeleteClick(chat);
                 }}
                 className="opacity-0 transition group-hover:opacity-100 hover:text-(--error)"
                 aria-label="Delete chat"
@@ -71,5 +91,16 @@ export function ChatList({
         )}
       </div>
     </div>
+
+      <ConfirmDialog
+        isOpen={!!chatToDelete}
+        title="Delete Chat?"
+        message={`This will permanently remove "${chatToDelete?.title}" and all its messages. This action cannot be undone.`}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+      />
+    </>
   );
 }
