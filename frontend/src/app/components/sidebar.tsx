@@ -41,11 +41,7 @@ export function Sidebar({
   onDeleteChat,
 }: SidebarProps) {
   const showChatList =
-    activeTab === "chat" &&
-    chats &&
-    onSelectChat &&
-    onNewChat &&
-    onDeleteChat;
+    activeTab === "chat" && chats && onSelectChat && onNewChat && onDeleteChat;
 
   return (
     <aside className="flex w-20 flex-col border-r border-(--border-subtle) bg-(--surface-muted) px-3 py-6 text-(--text-secondary) lg:w-64">
@@ -86,7 +82,7 @@ export function Sidebar({
         })}
       </nav>
 
-      {showChatList && (
+      {showChatList ? (
         <div className="mt-6 hidden flex-col gap-2 overflow-hidden lg:flex lg:flex-1">
           <ChatList
             chats={chats}
@@ -96,6 +92,8 @@ export function Sidebar({
             onDeleteChat={onDeleteChat}
           />
         </div>
+      ) : (
+        <div className="mt-6 hidden flex-1 lg:block" />
       )}
 
       <div className="mt-6 hidden flex-col gap-3 rounded-2xl border border-(--border-subtle) bg-(--surface-muted) px-4 py-3 text-xs text-(--text-muted) lg:flex">
