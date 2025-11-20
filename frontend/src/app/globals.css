@@ -2,37 +2,60 @@
 
 :root {
   color-scheme: dark;
-  --surface-base: #171717;
-  --surface-muted: #0d0d0d;
-  --surface-panel: #1e1e1e;
-  --surface-raised: #242424;
-  --border-subtle: #242424;
-  --border-strong: #242424;
-  --text-primary: #f5f7fb;
-  --text-secondary: #c3c9d6;
-  --text-muted: #8e97a8;
+  --surface-base: #09090b;
+  --surface-muted: #18181b;
+  --surface-panel: #27272a;
+  --surface-raised: #3f3f46;
+
+  --border-subtle: #27272a;
+  --border-strong: #3f3f46;
+
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+
   --accent-primary: #ffffff;
-  --accent-primary-strong: #f0f1f5;
+  --accent-primary-strong: #f4f4f5;
+
   --accent-teal: #2dd4bf;
   --accent-gold: #fbbf24;
   --accent-melon: #f87171;
   --accent-violet: #a855f7;
+
   --success: #22c55e;
   --warning: #f97316;
   --error: #ef4444;
-  --focus-ring: rgba(59, 130, 246, 0.35);
+
+  --focus-ring: rgba(168, 85, 247, 0.35);
   --shadow-elevated: 0 24px 56px -32px rgba(0, 0, 0, 0.65);
+
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-plex-mono);
 }
 
 body {
   background: var(--surface-base);
   color: var(--text-primary);
-  font-family:
-    var(--font-sans, "Inter"),
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--surface-raised);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }

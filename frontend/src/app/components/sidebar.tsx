@@ -44,8 +44,19 @@ export function Sidebar({
     activeTab === "chat" && chats && onSelectChat && onNewChat && onDeleteChat;
 
   return (
-    <aside className="flex w-20 flex-col border-r border-(--border-subtle) bg-(--surface-muted) px-3 py-6 text-(--text-secondary) lg:w-64">
-      <nav className="space-y-1">
+    <aside className="flex w-20 flex-col border-r border-(--border-subtle) bg-(--surface-muted) px-3 py-6 text-(--text-secondary) lg:w-72">
+      <div className="mb-6 px-3">
+        <div className="flex items-center gap-2 text-(--text-primary)">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-(--accent-violet) text-white">
+            <BotMessageSquare className="h-5 w-5" />
+          </div>
+          <span className="hidden text-lg font-bold tracking-tight lg:inline">
+            RAG Agent
+          </span>
+        </div>
+      </div>
+
+      <nav className="space-y-1.5">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive = item.id === activeTab;
@@ -61,21 +72,19 @@ export function Sidebar({
                 }
               }}
               disabled={isDisabled}
-              className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition ${
+              className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
                 isActive
-                  ? "bg-(--surface-raised) text-(--accent-primary) shadow-sm"
-                  : "text-(--text-muted) hover:bg-(--surface-muted) hover:text-(--text-primary)"
+                  ? "bg-(--surface-raised) text-(--text-primary) shadow-sm ring-1 ring-(--border-subtle)"
+                  : "text-(--text-muted) hover:bg-(--surface-raised) hover:text-(--text-primary)"
               } ${isDisabled ? "cursor-not-allowed opacity-40" : ""}`}
             >
-              <span
-                className={`flex h-9 w-9 items-center justify-center rounded-lg border transition ${
+              <Icon
+                className={`h-5 w-5 transition-colors ${
                   isActive
-                    ? "border-(--border-strong) bg-(--surface-panel) text-(--accent-primary)"
-                    : "border-(--border-subtle) bg-(--surface-muted) text-(--text-muted) group-hover:border-(--border-strong) group-hover:text-(--text-primary)"
+                    ? "text-(--accent-violet)"
+                    : "text-(--text-muted) group-hover:text-(--text-primary)"
                 }`}
-              >
-                <Icon className="h-4 w-4" />
-              </span>
+              />
               <span className="hidden lg:inline">{item.label}</span>
             </button>
           );
@@ -83,7 +92,7 @@ export function Sidebar({
       </nav>
 
       {showChatList ? (
-        <div className="mt-6 hidden flex-col gap-2 overflow-hidden lg:flex lg:flex-1">
+        <div className="mt-8 hidden flex-col gap-2 overflow-hidden lg:flex lg:flex-1">
           <ChatList
             chats={chats}
             activeChatId={activeChatId || null}
@@ -96,21 +105,23 @@ export function Sidebar({
         <div className="mt-6 hidden flex-1 lg:block" />
       )}
 
-      <div className="mt-6 hidden flex-col gap-3 rounded-2xl border border-(--border-subtle) bg-(--surface-muted) px-4 py-3 text-xs text-(--text-muted) lg:flex">
+      <div className="mt-6 hidden flex-col gap-3 rounded-2xl border border-(--border-subtle) bg-(--surface-base) px-4 py-4 text-xs text-(--text-muted) lg:flex">
         <div className="flex items-center justify-between">
-          <span>Usage</span>
-          <span className="font-medium text-(--accent-primary)">
+          <span className="font-medium text-(--text-secondary)">Storage</span>
+          <span className="font-medium text-(--text-primary)">
             {documentCount} / 100
           </span>
         </div>
-        <div className="h-2 w-full rounded-full bg-(--border-subtle)">
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-(--surface-raised)">
           <div
-            className="h-2 rounded-full bg-emerald-400 transition-all"
+            className="h-full rounded-full bg-gradient-to-r from-(--accent-violet) to-(--accent-melon) transition-all duration-500 ease-out"
             style={{ width: `${usagePercent}%` }}
           />
         </div>
-        <p className="text-(--text-secondary)">
-          Selected documents have been tagged successfully.
+        <p className="text-[11px] leading-relaxed text-(--text-muted)">
+          {usagePercent >= 100
+            ? "Storage limit reached."
+            : "Space available for more documents."}
         </p>
       </div>
     </aside>

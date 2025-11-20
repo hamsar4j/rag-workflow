@@ -193,9 +193,7 @@ export default function Home() {
   const chatHeader = (
     <div className="flex w-full flex-wrap items-end justify-between gap-4">
       <div className="flex flex-col gap-1">
-        <h1 className="text-xl font-semibold text-(--text-primary)">
-          Chat Console
-        </h1>
+        <h1 className="text-xl font-semibold text-(--text-primary)">Chat</h1>
         <p className="text-sm text-(--text-muted)">
           Monitor conversations and test retrieval quality in real time
         </p>
