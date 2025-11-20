@@ -1,6 +1,7 @@
+from dataclasses import dataclass
+
 from pydantic import BaseModel, Field
 from typing_extensions import Any, NotRequired, TypedDict
-from dataclasses import dataclass
 
 
 @dataclass

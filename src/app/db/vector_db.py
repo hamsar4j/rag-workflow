@@ -1,12 +1,14 @@
-from app.models.models import Document, SearchResult
-from qdrant_client import QdrantClient, models
-from fastembed import SparseTextEmbedding
-import numpy as np
-import logging
-from openai import OpenAI
-from typing import Optional, Any
 import json
+import logging
 import uuid
+from typing import Any, Optional
+
+import numpy as np
+from fastembed import SparseTextEmbedding
+from openai import OpenAI
+from qdrant_client import QdrantClient, models
+
+from app.models.models import Document, SearchResult
 
 logger = logging.getLogger(__name__)
 

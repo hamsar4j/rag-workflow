@@ -1,11 +1,13 @@
-from app.models.models import State, Document, SearchResult
-from app.db.vector_db import VectorDB
-from app.workflow.reranker import Reranker
-from app.core.config import settings
-from langgraph.graph import START, END, StateGraph
-from langgraph.checkpoint.memory import MemorySaver
-from app.workflow.router import LLMClient
 import logging
+
+from langgraph.checkpoint.memory import MemorySaver
+from langgraph.graph import END, START, StateGraph
+
+from app.core.config import settings
+from app.db.vector_db import VectorDB
+from app.models.models import Document, SearchResult, State
+from app.workflow.reranker import Reranker
+from app.workflow.router import LLMClient
 
 logger = logging.getLogger(__name__)
 
@@ -23,21 +25,29 @@ class RAGWorkflow:
         """Format the prompt for the LLM with the given question and context."""
 
         return f"""
-        You are a technical assistant. Strictly follow these rules:
+        You are a helpful technical assistant. Follow these rules:
 
-        1. Answer ONLY using the provided context
-        2. If information is missing, say: "I don't have sufficient information to answer this."
-        3. Maximum 10 sentences, be technical and precise
-        4. Provide citations with the source URL immediately after the statement in square brackets.
-        5. No markdown or formatting.
-        6. Return ONLY JSON with "text" field.
+        1. For greetings and conversational queries (like "hi", "hello", "how are you"):
+           - Respond naturally and helpfully
+           - Briefly introduce yourself as a technical assistant that can help answer questions about the knowledge base
+           - Do NOT cite sources for greetings
+
+        2. For knowledge-based questions:
+           - Answer ONLY using the provided context
+           - If information is missing from the context, say: "I don't have sufficient information to answer this."
+           - Maximum 10 sentences, be technical and precise
+           - Provide citations with the source URL immediately after the statement in square brackets
+
+        3. Always return ONLY JSON with "text" field
+        4. No markdown or formatting in your response
 
         **Question**: {question}
 
         **Context**: {context}
 
-        Example Response:
-        {{ "text": "The Freshmore curriculum is great.[https://www.sutd.edu.sg/education]" }}
+        Example Responses:
+        - Greeting: {{ "text": "Hi! I'm a technical assistant here to help answer your questions. What would you like to know?" }}
+        - Knowledge query: {{ "text": "The Freshmore curriculum is great.[https://www.sutd.edu.sg/education]" }}
         """
 
     def analyze_query(self, state: State) -> State:

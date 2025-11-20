@@ -1,6 +1,7 @@
 """Citation parser utility to extract sources from LLM responses."""
 
 import re
+
 from app.models.models import TextSegment
 
 

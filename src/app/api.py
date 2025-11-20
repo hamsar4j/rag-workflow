@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.concurrency import run_in_threadpool
 
 from app.core.config import settings
+from app.db.chat_db import ChatDB
 from app.ingestion.ingest import load_documents
 from app.ingestion.pdf_loader.pdf_to_text import extract_text_from_pdf
 from app.ingestion.service import ingest_text_documents
@@ -22,10 +23,9 @@ from app.models.models import (
     QueryResponse,
     UpdateModelRequest,
 )
-from app.workflow import build_rag_workflow
 from app.utils.citation_parser import parse_citations
-from app.db.chat_db import ChatDB
 from app.utils.id import create_id
+from app.workflow import build_rag_workflow
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

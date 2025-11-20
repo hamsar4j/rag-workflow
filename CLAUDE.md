@@ -34,12 +34,14 @@ pnpm start         # Production server
 ### Environment Configuration
 
 Copy `.env.example` to `.env` and populate required API keys:
+
 - `QDRANT_URL` / `QDRANT_API_KEY` for vector database
 - `LLM_API_KEY` for generation model (default: Together AI)
 - `EMBEDDINGS_API_KEY` for embedding model (default: Together AI)
 - `RERANKING_API_KEY` (optional, for Jina reranker when `ENABLE_RERANKER=true`)
 
 **Data Storage**:
+
 - Qdrant vector database runs in Docker (configured in `docker-compose.yaml`)
 - Chat history stored in SQLite database at `data/chats.db` (auto-created on first run)
 - Both databases persist across server restarts
@@ -60,6 +62,7 @@ The workflow maintains state through a `State` TypedDict containing `question`, 
 ### Hybrid Search Implementation
 
 Located in `src/app/db/vector_db.py`, the `VectorDB` class implements Reciprocal Rank Fusion (RRF) combining:
+
 - **Dense vectors**: `intfloat/multilingual-e5-large-instruct` (1024 dimensions) via Together AI
 - **Sparse vectors**: Qdrant BM25 via fastembed
 
@@ -68,6 +71,7 @@ The `hybrid_search()` method uses Qdrant's `query_points()` with `FusionQuery` t
 ### Document Ingestion
 
 Two entry points (`/ingest/web` and `/ingest/pdf`) flow through the same pipeline:
+
 1. **Load**: `load_documents()` for URLs (via BeautifulSoup loader) or `extract_text_from_pdf()` for PDFs
 2. **Chunk**: `split_documents()` using recursive text splitting (configurable `CHUNK_SIZE` / `CHUNK_OVERLAP`)
 3. **Embed**: `generate_embeddings()` creates both dense and sparse embeddings with retry logic
@@ -78,6 +82,7 @@ All ingestion goes through `src/app/ingestion/service.py` which wraps the pipeli
 ### FastAPI Server Structure
 
 `src/app/api.py` exposes REST endpoints:
+
 - `POST /query`: Main RAG query endpoint (accepts optional `model` and `chat_id`; auto-creates chats if none provided)
 - `POST /chats`: Create new chat session with optional title
 - `GET /chats`: List all chat sessions (ordered by recent activity)
@@ -93,12 +98,14 @@ The workflow and chat database are initialized once at startup via `lifespan` co
 ### Citation Parsing
 
 The backend parses inline citations from LLM responses using `src/app/utils/citation_parser.py`:
+
 - LLM generates responses with sources in square brackets: `text[https://example.com]`
 - `parse_citations()` extracts URLs and creates `TextSegment` objects with separate text/source fields
 - `/query` endpoint returns `QueryResponse` containing a list of segments
 - Frontend renders segments with hover tooltips for cited text (dotted underline indicates source)
 
 Example flow:
+
 ```
 LLM output: "SUTD offers BSc[https://sutd.edu.sg/education]."
 Parsed segments: [
@@ -110,6 +117,7 @@ Parsed segments: [
 ### Chat Persistence
 
 Multi-chat support with SQLite database implemented in `src/app/db/chat_db.py`:
+
 - **Database**: SQLite with SQLAlchemy ORM (stored at `data/chats.db`)
 - **Models**:
   - `ChatSession`: id, title, created_at, updated_at (relationship to messages)
@@ -120,6 +128,7 @@ Multi-chat support with SQLite database implemented in `src/app/db/chat_db.py`:
 - **Title generation**: First query (truncated to 50 chars) becomes the chat title
 
 Key implementation details:
+
 - Messages eagerly loaded using `.options(joinedload(ChatSession.messages))` to avoid SQLAlchemy detachment errors
 - `session.expunge()` used to detach objects after loading all relationships
 - UUID-based chat and message IDs via `src/app/utils/id.py`
@@ -128,6 +137,7 @@ Key implementation details:
 ### Frontend Integration
 
 Next.js 15 app in `frontend/` with:
+
 - Chat interface that proxies to `/query` endpoint with `chat_id` tracking
 - Chat history sidebar (visible when on Chat tab) with:
   - "New Chat" button to start fresh conversations
@@ -140,6 +150,7 @@ Next.js 15 app in `frontend/` with:
 - Environment variable `NEXT_PUBLIC_RAG_API` for backend URL (defaults to `http://localhost:8000`)
 
 **Hooks**:
+
 - `useChats` (`hooks/useChats.ts`): Manages chat list, creation, deletion, fetching
 - `useChat` (`hooks/useChat.ts`): Handles current chat state, message sending, chat loading, with callbacks for chat creation
 - State synchronization: When backend creates a new chat, `onChatCreated` callback updates frontend state and refreshes chat list
@@ -147,6 +158,7 @@ Next.js 15 app in `frontend/` with:
 ## Configuration Management
 
 All settings centralized in `src/app/core/config.py` using Pydantic Settings with `.env` overrides:
+
 - Qdrant connection and collection settings
 - LLM/embeddings model selection and API credentials
 - Chunking parameters (`chunk_size`, `chunk_overlap`)

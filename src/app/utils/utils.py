@@ -1,6 +1,7 @@
-from app.models.models import Document
 import logging
 from typing import Optional
+
+from app.models.models import Document
 from app.utils.progress import progress_bar
 
 logger = logging.getLogger(__name__)

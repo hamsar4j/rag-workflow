@@ -1,6 +1,7 @@
 import logging
+from typing import Any, Optional
+
 import requests
-from typing import Optional, Any
 
 
 class Reranker:

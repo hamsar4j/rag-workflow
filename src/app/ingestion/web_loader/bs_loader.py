@@ -1,6 +1,8 @@
+import logging
+
 import requests
 from bs4 import BeautifulSoup
-import logging
+
 from app.utils.progress import progress_bar
 
 logger = logging.getLogger(__name__)

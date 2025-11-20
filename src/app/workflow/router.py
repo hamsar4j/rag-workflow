@@ -1,8 +1,9 @@
-from openai import OpenAI
-from typing import Optional, Any, Union
-from pydantic import BaseModel, ValidationError
 import json
 import logging
+from typing import Any, Optional, Union
+
+from openai import OpenAI
+from pydantic import BaseModel, ValidationError
 
 logger = logging.getLogger(__name__)
 
