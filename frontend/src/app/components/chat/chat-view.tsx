@@ -147,7 +147,7 @@ export function ChatView({
         </div>
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-(--surface-base) via-(--surface-base) to-transparent pt-12 pb-6">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-(--surface-base) via-(--surface-base) to-transparent pt-12 pb-6">
         <div className="pointer-events-auto px-6 lg:px-10">
           <form className="mx-auto w-full max-w-3xl" onSubmit={onSubmit}>
             <div className="relative flex items-center gap-3 rounded-full border border-(--border-subtle) bg-(--surface-panel)/80 px-2 py-2 shadow-lg backdrop-blur-xl transition-all duration-300 focus-within:border-(--accent-violet) focus-within:ring-4 focus-within:ring-(--focus-ring)">
