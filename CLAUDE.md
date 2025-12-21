@@ -67,6 +67,7 @@ Located in `src/app/db/vector_db.py`, the `VectorDB` class implements Reciprocal
 - **Full-text search**: PostgreSQL native `tsvector` with GIN index (auto-generated from document text)
 
 The `hybrid_search()` method:
+
 1. Performs dense vector search using pgvector's `<=>` cosine distance operator
 2. Performs full-text search using PostgreSQL's `ts_rank_cd()` with `plainto_tsquery()`
 3. Combines results using RRF fusion in Python (k=60)

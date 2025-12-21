@@ -106,10 +106,10 @@ export function useKnowledgeBase({ apiBase }: UseKnowledgeBaseOptions) {
           return;
         }
         const payload = (await response.json().catch(() => null)) as {
-          qdrant_collection?: string;
+          postgres_table?: string;
         } | null;
         if (!cancelled && payload && typeof payload === "object") {
-          const name = payload.qdrant_collection;
+          const name = payload.postgres_table;
           if (typeof name === "string" && name.trim().length > 0) {
             setCollectionName(name);
           }
