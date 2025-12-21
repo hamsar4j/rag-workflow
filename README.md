@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project implements a Retrieval-Augmented Generation (RAG) workflow for building AI-powered question-answering systems. The application combines LangGraph for workflow orchestration, Qdrant for vector storage, and various LLM providers for embeddings and generation.
+This project implements a Retrieval-Augmented Generation (RAG) workflow for building AI-powered question-answering systems. The application combines LangGraph for workflow orchestration, PostgreSQL with pgvector for vector storage, and various LLM providers for embeddings and generation.
 
 ![RAG Workflow](assets/rag-workflow.png)
 ![RAG Chat](assets/rag-chat.png)
@@ -15,11 +15,11 @@ The application follows a modular architecture with the following components:
 1. **Frontend**: Next.js chat interface (`frontend/`) for live chat supervision with multi-chat support
 2. **Backend**: FastAPI server exposing REST endpoints
 3. **Workflow Engine**: LangGraph-powered RAG pipeline with multiple stages
-4. **Vector Store**: Qdrant for efficient similarity search
+4. **Vector Store**: PostgreSQL with pgvector extension for efficient similarity search
 5. **Chat Persistence**: SQLite database for storing chat sessions and message history
 6. **AI Models**:
    - Dense Embeddings: intfloat/multilingual-e5-large-instruct via Together AI
-   - Sparse Embeddings: Qdrant/bm25
+   - Full-Text Search: PostgreSQL native tsvector with GIN index
    - Generation: moonshotai/Kimi-K2-Instruct-0905 via Together AI
    - Re-ranking: jina-reranker-v1-tiny-en via Jina AI (optional)
 
@@ -27,8 +27,8 @@ The application follows a modular architecture with the following components:
 
 - Python 3.12+
 - [uv](https://github.com/astral-sh/uv) for dependency management
-- Docker and Docker Compose (for Qdrant vector database)
-- API keys for Together AI, Qdrant and optionally Jina AI
+- Docker and Docker Compose (for PostgreSQL with pgvector)
+- API keys for Together AI and optionally Jina AI
 
 ## Quickstart
 
@@ -47,7 +47,7 @@ The application follows a modular architecture with the following components:
 
    Fill in the placeholders with your credentials. Key variables:
    - `BACKEND_URL` (default `http://localhost:8000`)
-   - `QDRANT_URL` / `QDRANT_API_KEY`, plus optional overrides such as `QDRANT_COLLECTION_NAME` (`sutd`) and `QDRANT_SEARCH_TOP_K` (`10`)
+   - `POSTGRES_URL` (default `postgresql://rag_user:rag_password@localhost:5433/rag_db`), plus optional overrides such as `POSTGRES_TABLE_NAME` (`documents`) and `POSTGRES_SEARCH_TOP_K` (`10`)
    - `LLM_API_KEY` with optional `LLM_BASE_URL` / `LLM_MODEL` (default `moonshotai/Kimi-K2-Instruct-0905`). You can swap models at runtime from the chat dropdown or the `/settings/model` API; the latest choice is stored in-process.
    - `EMBEDDINGS_API_KEY` with optional `EMBEDDINGS_BASE_URL`, `EMBEDDINGS_MODEL` (default `intfloat/multilingual-e5-large-instruct`), and `EMBEDDINGS_DIM` (`1024`)
    - `ENABLE_RERANKER` (`false` by default) plus `RERANKING_API_KEY` when enabling the Jina reranker
@@ -81,8 +81,8 @@ Regardless of entry point (UI or API), ingestion flows through the same stages:
 
 - **Load sources**: Scrapes URLs or extracts text from uploaded PDFs.
 - **Chunk documents**: Splits text using recursive chunking with configurable size/overlap.
-- **Generate embeddings**: Creates dense vectors with `intfloat/multilingual-e5-large-instruct` and sparse BM25 vectors.
-- **Store in Qdrant**: Persists chunks, embeddings, and metadata.
+- **Generate embeddings**: Creates dense vectors with `intfloat/multilingual-e5-large-instruct`.
+- **Store in PostgreSQL**: Persists chunks, embeddings, and metadata. Full-text search vectors (tsvector) are auto-generated.
 
 ## Usage
 
@@ -94,7 +94,7 @@ Regardless of entry point (UI or API), ingestion flows through the same stages:
 
 3. The system will:
    - Analyze your query
-   - Retrieve relevant documents from the vector store
+   - Retrieve relevant documents from the vector store using hybrid search (dense vectors + full-text search with RRF fusion)
    - Optionally re-rank results for better quality
    - Generate a response based on the retrieved context
    - Display source citations as hoverable tooltips in the chat interface
@@ -182,7 +182,7 @@ You can also interact with the RAG system programmatically via its API:
   curl -X DELETE "http://localhost:8000/chats/abc-123-def-456"
   ```
 
-- `GET /health` — Health check endpoint (includes the active Qdrant collection name).
+- `GET /health` — Health check endpoint (includes the active PostgreSQL table name).
 
 ## Project Structure
 
@@ -193,7 +193,7 @@ rag-workflow/
 │   │   ├── api.py              # FastAPI server
 │   │   ├── core/               # Configuration
 │   │   ├── db/                 # Database integration
-│   │   │   ├── vector_db.py    # Qdrant vector database client
+│   │   │   ├── vector_db.py    # PostgreSQL pgvector client
 │   │   │   └── chat_db.py      # SQLite chat persistence (SQLAlchemy)
 │   │   ├── ingestion/          # Data ingestion utilities
 │   │   │   ├── ingest.py       # Core ingestion functions
@@ -210,7 +210,7 @@ rag-workflow/
 │   ├── ingest_data.ipynb       # Jupyter notebook for data ingestion
 │   └── ragas_eval.ipynb        # RAGAS-based evaluation walkthrough
 ├── .env.example                # Environment variable template
-├── docker-compose.yaml         # Qdrant service configuration
+├── docker-compose.yaml         # PostgreSQL pgvector service configuration
 ├── pyproject.toml              # Project dependencies
 └── README.md                   # This file
 ```
@@ -222,7 +222,7 @@ rag-workflow/
 - **Interactive source citations** with hover tooltips in the chat UI — cited text appears with a dotted underline, revealing the source URL on hover.
 - **Next.js chat UI + FastAPI API** for conversational oversight and programmatic access to the same workflow, including live LLM switching.
 - **Chat history sidebar** — view, switch between, and manage multiple conversations with automatic title generation and delete functionality.
-- **Hybrid search** combining `intfloat/multilingual-e5-large-instruct` dense vectors with Qdrant BM25 sparse vectors via Reciprocal Rank Fusion (`src/app/db/vector_db.py`).
+- **Hybrid search** combining `intfloat/multilingual-e5-large-instruct` dense vectors (HNSW index) with PostgreSQL full-text search (tsvector with GIN index) via Reciprocal Rank Fusion (`src/app/db/vector_db.py`).
 - **Environment-driven configuration** covering models, retrieval parameters, and the optional Jina reranker switch.
 - **Flexible ingestion CLI** for URLs/PDFs with chunk controls and caching to avoid reprocessing.
 

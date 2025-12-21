@@ -35,7 +35,7 @@ logging.getLogger("httpcore").setLevel(logging.WARNING)
 rag_workflow = None
 chat_db = None
 ALLOWED_PDF_CONTENT_TYPES = {"application/pdf", "application/octet-stream"}
-QDRANT_COLLECTION = settings.qdrant_collection_name
+POSTGRES_TABLE = settings.postgres_table_name
 
 
 @asynccontextmanager
@@ -421,5 +421,5 @@ async def health_check():
     return {
         "status": "healthy",
         "version": "1.0.0",
-        "qdrant_collection": QDRANT_COLLECTION,
+        "postgres_table": POSTGRES_TABLE,
     }

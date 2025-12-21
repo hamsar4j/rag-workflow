@@ -12,11 +12,12 @@ class Settings(BaseSettings):
     # fastAPI backend
     backend_url: str = os.getenv("BACKEND_URL", "http://localhost:8000")
 
-    # qdrant vector db
-    qdrant_url: str = os.getenv("QDRANT_URL", "")
-    qdrant_api_key: str = os.getenv("QDRANT_API_KEY", "")
-    qdrant_collection_name: str = os.getenv("QDRANT_COLLECTION_NAME", "sutd")
-    qdrant_search_top_k: int = int(os.getenv("QDRANT_SEARCH_TOP_K", "10"))
+    # PostgreSQL vector db (pgvector)
+    postgres_url: str = os.getenv(
+        "POSTGRES_URL", "postgresql://rag_user:rag_password@localhost:5433/rag_db"
+    )
+    postgres_table_name: str = os.getenv("POSTGRES_TABLE_NAME", "documents")
+    postgres_search_top_k: int = int(os.getenv("POSTGRES_SEARCH_TOP_K", "10"))
 
     # llm api
     llm_base_url: str = os.getenv("LLM_BASE_URL", "https://api.together.xyz/v1")
