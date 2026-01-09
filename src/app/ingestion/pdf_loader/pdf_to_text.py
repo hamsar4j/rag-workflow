@@ -3,8 +3,7 @@ from pathlib import Path
 from typing import Union
 
 import pymupdf
-
-from app.utils.progress import progress_bar
+import pymupdf4llm
 
 logger = logging.getLogger(__name__)
 
@@ -12,7 +11,7 @@ logger = logging.getLogger(__name__)
 def extract_text_from_pdf(
     pdf_source: Union[str, bytes, Path], source_name: str | None = None
 ) -> str:
-    """Extract text from a PDF file path or raw bytes."""
+    """Extract text from a PDF file path or raw bytes as markdown."""
 
     source_label = source_name or (
         str(pdf_source) if isinstance(pdf_source, (str, Path)) else "uploaded-pdf"
@@ -37,13 +36,7 @@ def extract_text_from_pdf(
         raise
 
     try:
-        text = ""
-        with progress_bar("Processing PDF pages...") as progress:
-            task = progress.add_task("Processing PDF pages...", total=len(doc))
-            for page in doc:
-                text += page.get_text()
-                progress.update(task, advance=1)
-
-        return text
+        markdown_text = pymupdf4llm.to_markdown(doc, show_progress=True)
+        return markdown_text
     finally:
         doc.close()
