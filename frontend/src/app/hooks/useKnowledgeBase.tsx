@@ -131,9 +131,9 @@ export function useKnowledgeBase({ apiBase }: UseKnowledgeBaseOptions) {
     if (urlState.pending) return;
 
     const urls = urlState.input
-      .split(/\r?\n/)
-      .map((url) => url.trim())
-      .filter((url) => url.length > 0);
+      .split(/[\r\n,]+/)
+      .map((url) => url.trim().replace(/^["']|["']$/g, ""))
+      .filter((url) => url.length > 0 && url.startsWith("http"));
 
     if (urls.length === 0) {
       updateUrlState({

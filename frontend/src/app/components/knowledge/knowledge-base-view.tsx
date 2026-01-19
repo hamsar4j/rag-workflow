@@ -206,8 +206,8 @@ export function KnowledgeBaseView({
                   Ingest website URLs
                 </h3>
                 <p className="mt-1 text-xs text-(--text-muted)">
-                  Paste one URL per line. We&apos;ll crawl, chunk, and embed the
-                  contents automatically.
+                  Paste URLs separated by newlines or commas (quotes are
+                  stripped). We&apos;ll crawl, chunk, and embed automatically.
                 </p>
               </div>
               <textarea
