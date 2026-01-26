@@ -25,10 +25,10 @@ uv run fastapi run src/app/api.py --host 0.0.0.0 --port 8000
 
 ```bash
 cd frontend
-pnpm install        # First time setup
-pnpm dev           # Development server (http://localhost:3000)
-pnpm build         # Production build
-pnpm start         # Production server
+bun install        # First time setup
+bun run dev        # Development server (http://localhost:3000)
+bun run build      # Production build
+bun run start      # Production server
 ```
 
 ### Environment Configuration

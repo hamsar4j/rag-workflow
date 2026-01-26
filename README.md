@@ -69,8 +69,8 @@ The application follows a modular architecture with the following components:
 
    ```bash
    cd frontend
-   pnpm install
-   pnpm dev
+   bun install
+   bun run dev
    ```
 
    The FastAPI server listens on `http://localhost:8000`. The Next.js app proxies requests to `/query`; export `NEXT_PUBLIC_RAG_API` if the backend runs elsewhere.
